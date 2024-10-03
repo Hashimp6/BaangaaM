@@ -5,6 +5,8 @@ const cors = require("cors");
 const passport = require("passport");
 const userRouter = require("./router/userrouter");
 const authRouter = require("./router/authRouter");
+const storeRouter = require("./router/shopRouter");
+const cloudinary=require('./config/cloudinary')
 require("./config/passportConfig");
 
 const PORT = process.env.PORT || 3200;
@@ -22,6 +24,7 @@ mongoose
 
 app.use("/", userRouter);
 app.use("/auth", authRouter);
+app.use('/store',storeRouter)
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

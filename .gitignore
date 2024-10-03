@@ -1,0 +1,32 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Dependency directories
+node_modules/
+FrondEnd/node_modules/
+BackEnd/node_modules/
+
+# Build directories
+dist/
+dist-ssr/
+FrondEnd/dist/
+BackEnd/dist/
+
+# Ignore other build or temporary files
+*.local
+*.lock
+*.DS_Store
+.vscode/
+.idea/
+
+# Specific ignore patterns
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

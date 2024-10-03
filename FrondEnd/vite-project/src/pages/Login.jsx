@@ -7,7 +7,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useState } from "react";
-import { Link,  } from "react-router-dom";
+import { Link,useNavigate   } from "react-router-dom";
 import bg from "../../public/pics/logbg.jpg";
 import axios from "axios";
 import GoogleLoginButton from "../components/GoogleButton";
@@ -18,6 +18,7 @@ function LoginForm() {
   const [loginStatus, setLoginStatus] = useState(true);
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const navigate = useNavigate();
 
   const validateEmail = (email) => {
     // Basic email validation regex
@@ -57,8 +58,9 @@ function LoginForm() {
 
         setEmail("");
         setPassword("");
-        if (response) {
+        if (response.data.success) {
           console.log(response);
+          navigate('/home');
           setLoginStatus(true);
         } else {
           setLoginStatus(false);

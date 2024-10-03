@@ -7,6 +7,7 @@ import {
   Paper,
   FormControlLabel,
   Checkbox,
+  Alert,
 } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -22,9 +23,11 @@ function RegisterForm() {
   const [nameError, setNameError] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
-  const [varified, setVarified] = useState(false);
+  const [acceptTermsError, setAcceptTermsError] = useState("");
+  const [registerMessage, setRegisterMessage] = useState(false);
+  const [varified, setVarified] = useState(true);
   const [otpWindow, setOtpWindow] = useState(false);
-  //   const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -36,8 +39,8 @@ function RegisterForm() {
     setNameError("");
     setEmailError("");
     setPasswordError("");
+    setAcceptTermsError("");
 
-    // Check if email and password fields are filled
     let isValid = true;
     if (name.trim().length === 0) {
       setNameError("Name is required.");
@@ -57,49 +60,59 @@ function RegisterForm() {
       isValid = false;
     }
 
+    if (!acceptTerms) {
+      setAcceptTermsError("You must accept the terms and conditions.");
+      isValid = false;
+    }
+
     if (isValid) {
       try {
         const response = await axios.post("http://localhost:3200/register", {
-            name:name.trim(),
-            email: email.trim(),
+          name: name.trim(),
+          email: email.trim(),
           password: password.trim(),
         });
         setName("");
         setEmail("");
         setPassword("");
-        if (response) {
-          console.log(response);
-          //   setLoginStatus(true);
+        if (response.data.success) {
+          setAcceptTerms(false);
+          setVarified(false);
+          console.log(response.data.success);
+          console.log("new user creaated");
+          setRegisterMessage(false);
+          navigate("/login");
         } else {
-          //   setLoginStatus(false);
+          console.log("sorry");
+          setRegisterMessage(true);
         }
       } catch (error) {
         console.log("Error fetching:", error);
-        // setLoginStatus(false);
+        setRegisterMessage(false);
       }
     }
   };
 
   const handleVerify = async () => {
     try {
-        let isValid=true
-        
-        if (email.trim().length === 0) {
-            setEmailError("Email is required.");
-            isValid = false;
-          } else if (!validateEmail(email.trim())) {
-            setEmailError("Invalid email format.");
-            isValid = false;
-          }
-if (isValid){
-      const response =await axios.post("http://localhost:3200/auth/varify", {
-        email: email.trim(),
-      });
-      if (response.data.success) {
-        setOtpWindow(true);
-        console.log(response);
+      let isValid = true;
+
+      if (email.trim().length === 0) {
+        setEmailError("Email is required.");
+        isValid = false;
+      } else if (!validateEmail(email.trim())) {
+        setEmailError("Invalid email format.");
+        isValid = false;
       }
-    }
+      if (isValid) {
+        const response = await axios.post("http://localhost:3200/auth/varify", {
+          email: email.trim(),
+        });
+        if (response.data.success) {
+          setOtpWindow(true);
+          console.log(response);
+        }
+      }
     } catch (error) {
       console.log(error);
     }
@@ -127,7 +140,11 @@ if (isValid){
         }}
       >
         {otpWindow ? (
-          <OtpVerification email={email} setVarified={setVarified} setOtpWindow={setOtpWindow}/>
+          <OtpVerification
+            email={email}
+            setVarified={setVarified}
+            setOtpWindow={setOtpWindow}
+          />
         ) : (
           <Box
             sx={{
@@ -148,11 +165,11 @@ if (isValid){
               Register
             </Typography>
 
-            {/* Display error message
-        {error && <Alert severity="error" sx={{ width: '100%', mb: 2 }}>{error}</Alert>}
-        
-        {/* Display success message */}
-            {/* {success && <Alert severity="success" sx={{ width: '100%', mb: 2 }}>{success}</Alert>} */}
+            {registerMessage && (
+              <Alert severity="error" sx={{ width: "100%", mb: 2 }}>
+                Registration failed please try again
+              </Alert>
+            )}
 
             <form
               onSubmit={(e) => {
@@ -194,7 +211,15 @@ if (isValid){
                 variant="standard"
                 name="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+
+                  if (!validateEmail(email.trim())) {
+                    setEmailError("Invalid email format.");
+                  } else {
+                    setEmailError("");
+                  }
+                }}
                 fullWidth
                 error={!!emailError}
                 helperText={emailError}
@@ -255,13 +280,22 @@ if (isValid){
                 control={
                   <Checkbox
                     checked={acceptTerms}
-                    onChange={(e) => setAcceptTerms(e.target.checked)}
+                    onChange={(e) => {
+                      setAcceptTerms(e.target.checked);
+                      setAcceptTermsError(""); // Reset error on change
+                    }}
+                    sx={{
+                      color: acceptTermsError ? "red" : "#009688",
+                      "&.Mui-checked": {
+                        color: acceptTermsError ? "red" : "#009688",
+                      },
+                    }}
                   />
                 }
                 label={
                   <span
                     style={{
-                      color: acceptTerms ? "#009688" : "red",
+                      color: acceptTermsError ? "red" : "#009688",
                       fontSize: "0.75rem",
                     }}
                   >
@@ -269,6 +303,14 @@ if (isValid){
                   </span>
                 }
               />
+              {acceptTermsError && (
+                <Typography
+                  variant="caption"
+                  sx={{ color: "red", marginBottom: "16px", display: "block" }}
+                >
+                  {acceptTermsError}
+                </Typography>
+              )}
 
               <Button
                 type="submit"

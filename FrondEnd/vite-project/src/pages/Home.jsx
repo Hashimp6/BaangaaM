@@ -1,7 +1,5 @@
-
-
 function Home() {
-  return <div>hekkooo this is home</div>;
+  return <div>2f3f2ini</div>;
 }
 
 export default Home;
