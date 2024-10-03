@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Container,
   TextField,
@@ -18,10 +18,15 @@ import {
 import StoreIcon from "@mui/icons-material/Store"; // Ensure correct import
 import CropImage from "../components/CropImage";
 import axios from "axios";
+import SelectedLocation from "../components/SelectedLocation";
+import LocationFinder from "../components/LocationFind";
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const StoreForm = () => {
-
-    const storeEmail ='tuttu@gmail.com'
+  const navigate = useNavigate();
+  const shopInfo = useSelector((state) => state.store.shopInfo);
+  console.log("shop info is", shopInfo);
 
   const [features, setFeatures] = useState({
     cashOnDelivery: false,
@@ -33,7 +38,10 @@ const StoreForm = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [imageType, setImageType] = useState(""); // Added to handle image type
   const [croppedLogo, setCroppedLogo] = useState(null);
-  const [croppedBanner, setCroppedBanner] = useState(null); // Added for banner
+  const [croppedBanner, setCroppedBanner] = useState(null);
+  const [geoLocation, setGeolocation] = useState(null);
+  const [showLocation, setShowLocation] = useState(null);
+  const [convertedAddress, setConvertedAddress] = useState("");
   const [formValues, setFormValues] = useState({
     shopName: "",
     shopId: "",
@@ -88,7 +96,7 @@ const StoreForm = () => {
     event.preventDefault();
     if (validate()) {
       const formData = new FormData();
-      formData.append("storeEmail", storeEmail);
+      formData.append("storeEmail", shopInfo.email);
       formData.append("shopId", formValues.shopId);
       formData.append("shopName", formValues.shopName);
       formData.append("location", formValues.location);
@@ -103,6 +111,8 @@ const StoreForm = () => {
       formData.append("logoURL", croppedLogo);
       formData.append("deliveryAvailable", features.deliveryAvailable);
       formData.append("bannerURL", croppedBanner);
+      formData.append("GeoLocationLat", geoLocation.lat);
+      formData.append("GeoLocationLng", geoLocation.lng);
       for (let [key, value] of formData.entries()) {
         console.log(`${key}:`, value);
       }
@@ -111,12 +121,15 @@ const StoreForm = () => {
           headers: {
             "Content-Type": "multipart/form-data",
           },
+        }, {
+          withCredentials: true 
         })
         .then((response) => {
-          console.log(response); // Resolve with response data
+          console.log(response);
+          navigate("/shopowners");
         })
         .catch((error) => {
-          console.log(error); // Reject with error
+          console.log(error);
         });
     } else {
       // Focus on the first field with an error
@@ -125,6 +138,38 @@ const StoreForm = () => {
       if (field) {
         field.focus();
       }
+    }
+  };
+
+  useEffect(() => {
+    if (geoLocation) {
+      convertGeoToAddress(geoLocation);
+    }
+  }, [geoLocation]);
+
+  const convertGeoToAddress = async (geoLocation) => {
+    const { lat, lng } = geoLocation;
+    const geocoder = new window.google.maps.Geocoder();
+
+    try {
+      const response = await new Promise((resolve, reject) => {
+        geocoder.geocode({ location: { lat, lng } }, (results, status) => {
+          if (status === "OK") {
+            resolve(results);
+          } else {
+            reject(status);
+          }
+        });
+      });
+
+      if (response && response.length > 0) {
+        setConvertedAddress(response[0].formatted_address);
+      } else {
+        setConvertedAddress("No address found");
+      }
+    } catch (error) {
+      console.error("Error converting geolocation to address:", error);
+      setConvertedAddress("Unable to convert location to address");
     }
   };
 
@@ -248,6 +293,57 @@ const StoreForm = () => {
             error={!!errors.address}
             helperText={errors.address}
           />
+          <div>
+            <button
+              onClick={() => setShowLocation("button1")}
+              style={{
+                backgroundColor: "#008080",
+                color: "white",
+                border: "none",
+                padding: "10px 20px",
+                margin: "5px",
+                borderRadius: "5px",
+                width: "20vw",
+                cursor: "pointer",
+                fontSize: "16px",
+              }}
+            >
+              Mark shop Location
+            </button>
+            <button
+              onClick={() => setShowLocation("button2")}
+              style={{
+                backgroundColor: "#008080",
+                color: "white",
+                border: "none",
+                width: "22vw",
+                padding: "10px 20px",
+                margin: "5px",
+                borderRadius: "5px",
+                cursor: "pointer",
+                fontSize: "16px",
+              }}
+            >
+              Set Live location as Shop location
+            </button>
+          </div>
+          {showLocation === "button1" ? (
+            <SelectedLocation
+              setGeolocation={setGeolocation}
+              setShowLocation={setShowLocation}
+            />
+          ) : (
+            ""
+          )}
+          {showLocation === "button2" ? (
+            <LocationFinder
+              setGeolocation={setGeolocation}
+              setShowLocation={setShowLocation}
+            />
+          ) : (
+            ""
+          )}
+          {convertedAddress ? <p>{convertedAddress}</p> : ""}
           <Grid container spacing={3}>
             <Grid item xs={12} sm={6}>
               <TextField

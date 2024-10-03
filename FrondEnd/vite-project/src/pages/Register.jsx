@@ -67,7 +67,7 @@ function RegisterForm() {
 
     if (isValid) {
       try {
-        const response = await axios.post("http://localhost:3200/register", {
+        const response = await axios.post("http://localhost:3200/user/register", {
           name: name.trim(),
           email: email.trim(),
           password: password.trim(),
@@ -88,7 +88,7 @@ function RegisterForm() {
         }
       } catch (error) {
         console.log("Error fetching:", error);
-        setRegisterMessage(false);
+        setRegisterMessage(true);
       }
     }
   };

@@ -12,6 +12,8 @@ import bg from "../../public/pics/storelog.jpg";
 import StoreIcon from "@mui/icons-material/Store";
 import axios from "axios";
 import { keyframes } from "@emotion/react";
+import { useDispatch } from "react-redux";
+import {  storeLoginRequest, storeLoginSuccess } from "../redux/slices/store/storesSlice";
 
 // Color Scheme: Updated
 const primaryColor = "#009688";
@@ -36,6 +38,7 @@ function StoreLoginForm() {
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const validateEmail = (email) => {
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -44,6 +47,8 @@ function StoreLoginForm() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+
+    dispatch(storeLoginRequest());
 
     setEmailError("");
     setPasswordError("");
@@ -65,15 +70,22 @@ function StoreLoginForm() {
 
     if (isValid) {
       try {
-        const response = await axios.post("http://localhost:3200/store-login", {
+        const response = await axios.post("http://localhost:3200/store/Login", {
           email: email.trim(),
           password: password.trim(),
+        }, {
+          withCredentials: true 
         });
 
         setEmail("");
         setPassword("");
         if (response.data.success) {
-          navigate("/store-home");
+          dispatch(storeLoginSuccess({
+            shop: response.data.shop,
+            role: response.data.role
+          }));
+          console.log("store owner is",response.data.user);
+          navigate("/shopowners");
           setLoginStatus(true);
         } else {
           setLoginStatus(false);

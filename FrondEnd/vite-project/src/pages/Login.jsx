@@ -7,11 +7,15 @@ import {
   Typography,
 } from "@mui/material";
 import { useState } from "react";
-import { Link,useNavigate   } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import bg from "../../public/pics/logbg.jpg";
 import axios from "axios";
 import GoogleLoginButton from "../components/GoogleButton";
-
+import { useDispatch } from "react-redux";
+import {
+  loginRequest,
+  loginSuccess,
+} from "../redux/slices/users/usersSlic";
 function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -19,6 +23,7 @@ function LoginForm() {
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const validateEmail = (email) => {
     // Basic email validation regex
@@ -28,7 +33,7 @@ function LoginForm() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
+    dispatch(loginRequest());
     // Reset error messages
     setEmailError("");
     setPasswordError("");
@@ -51,16 +56,26 @@ function LoginForm() {
 
     if (isValid) {
       try {
-        const response = await axios.post("http://localhost:3200/login", {
-          email: email.trim(),
-          password: password.trim(),
-        });
+        const response = await axios.post(
+          "http://localhost:3200/user/login",
+          {
+            email: email.trim(),
+            password: password.trim(),
+          },
+          {
+            withCredentials: true,
+          }
+        );
 
         setEmail("");
         setPassword("");
         if (response.data.success) {
+          dispatch(loginSuccess({
+            user: response.data.user,
+            role: response.data.role
+          }));
           console.log(response);
-          navigate('/home');
+          navigate("/home");
           setLoginStatus(true);
         } else {
           setLoginStatus(false);
@@ -154,7 +169,7 @@ function LoginForm() {
               value={password}
               onChange={(e) => {
                 setPassword(e.target.value);
-                if (passwordError) setPasswordError(""); // Clear the error when user starts typing
+                if (passwordError) setPasswordError("");
               }}
               error={!!passwordError}
               helperText={passwordError}

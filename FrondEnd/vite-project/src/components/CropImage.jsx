@@ -58,7 +58,7 @@ const CropImage = ({ imageUrl, onCrop, onClose, imageType }) => {
           image={imageUrl}
           crop={crop}
           zoom={zoom}
-          aspect={imageType === 'logo' ? 1 / 1 : 6 / 2} // Dynamically set the aspect ratio
+          aspect={imageType === 'logo' ? 1 / 1 : 10 / 2} // Dynamically set the aspect ratio
           onCropChange={setCrop}
           onCropComplete={onCropComplete}
           onZoomChange={setZoom}

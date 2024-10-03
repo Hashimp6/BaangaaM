@@ -72,6 +72,8 @@ function StoreRegisterForm() {
           name: name.trim(),
           email: email.trim(),
           password: password.trim(),
+        }, {
+          withCredentials: true 
         });
         setName("");
         setEmail("");
@@ -82,7 +84,7 @@ function StoreRegisterForm() {
           console.log(response.data.success);
           console.log("new user creaated");
           setRegisterMessage(false);
-          navigate("/adminhome");
+          navigate("/storeLogin");
         } else {
           console.log("sorry");
           setRegisterMessage(true);

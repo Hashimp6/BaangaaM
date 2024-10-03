@@ -24,6 +24,8 @@ const OtpVerification = ({ email, setVarified, setOtpWindow }) => {
     const otpValue = otp.join("");
     const response = await axios.post("http://localhost:3200/auth/otpvarify", {
         otp:otpValue,email:email
+      }, {
+        withCredentials: true 
       });
       if(response.data.success)
       {
@@ -43,6 +45,8 @@ const OtpVerification = ({ email, setVarified, setOtpWindow }) => {
   const handleResendOtp=async()=>{
     const response = await axios.post("http://localhost:3200/auth/resendOtp", {
        email:email
+      }, {
+        withCredentials: true 
       });
       if(response)
       {

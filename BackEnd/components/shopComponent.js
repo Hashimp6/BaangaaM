@@ -1,6 +1,6 @@
 const shopModel = require("../models/shopModel");
 const bcrypt = require("bcrypt");
-const formidable = require("formidable");
+const formidable = require('formidable');
 const cloudinary = require("../config/cloudinary");
 const { generateToken } = require("../utils/generateJwt");
 const path = require("path");
@@ -42,6 +42,9 @@ const registerStore = async (req, res) => {
   }
 };
 
+
+
+
 const loginStore = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -57,10 +60,16 @@ const loginStore = async (req, res) => {
       const isMatch = await bcrypt.compare(password, findShop.password);
       if (isMatch) {
         const token = generateToken(findShop);
-        return res.json({
+        return  res.cookie('token', token, {
+          httpOnly: true, 
+          secure: process.env.NODE_ENV === 'production', 
+          sameSite: 'strict',
+          maxAge: 7 * 24 * 60 * 60 * 1000, 
+        }).json({
           success: true,
-          message: "Admin Login successfull",
-          user: findShop,
+          message: "shop Login successfull",
+          shop: findShop,
+          role:"shop",
           token: token,
         });
       } else {
@@ -78,12 +87,12 @@ const loginStore = async (req, res) => {
 const updateStore = async (req, res) => {
   try {
     const form = new formidable.IncomingForm();
-    form.uploadDir = path.join(__dirname, "temp"); // Set the temp directory for uploaded files
+    form.uploadDir = path.join(__dirname, "temp");
     form.keepExtensions = true;
 
     form.parse(req, async (err, fields) => {
       if (err) {
-        return res.status(400).json({ error: "Error parsing form data" });
+        return res.json({ error: "Error parsing form data" });
       }
 
       const parsedFields = Object.fromEntries(
@@ -104,9 +113,12 @@ const updateStore = async (req, res) => {
         category,
         logoURL,
         bannerURL,
+        GeoLocationLat,
+        GeoLocationLng
       } = parsedFields;
-
-
+const GeolocationLatitude=parseFloat(GeoLocationLat)
+const GeolocationLongitude=parseFloat(GeoLocationLng)
+console.log(GeoLocationLat);
       const uploadPromises = [];
 
       // Prepare upload promises
@@ -140,6 +152,10 @@ console.log(shopName);
       const updatedStore = await shopModel.findOneAndUpdate({ email:storeEmail },  {
         shopName: shopName,
         location,
+        Geolocation: {
+          type: "Point",
+          coordinates: [GeolocationLongitude,GeolocationLatitude]
+        },
         address,
         category,
         logo: logoUrl, 
@@ -168,4 +184,96 @@ console.log(shopName);
   }
 };
 
-module.exports = { registerStore, loginStore, updateStore };
+// function for finding nearest stores
+async function findNearestShops(latitude, longitude, maxDistanceKm = 10) {
+  try {
+    const shops = await shopModel.aggregate([
+      {
+        $geoNear: {
+          near: { type: "Point", coordinates: [parseFloat(longitude), parseFloat(latitude)] },
+          distanceField: "distance",
+          maxDistance: maxDistanceKm * 1000,
+          spherical: true,
+          query: { Geolocation: { $exists: true } }
+        },
+      },
+      {
+        $sort: { distance: 1 },
+      },
+    ]);
+
+    return shops.map(shop => ({
+      shop
+    }));
+  } catch (error) {
+    console.error('Error finding nearest shops:', error);
+    throw error;
+  }
+}
+
+// finding nearest stores
+
+const nearestStore = async (req, res) => {
+  
+  try {
+    const { lat, lng } = req.body;
+    console.log(lat,lng
+      
+    );
+    
+    if (!lat || !lng) {
+      return res.status(400).json({ success: false, message: "Latitude and longitude are required" });
+    }
+
+    const nearestShops = await findNearestShops(lat, lng);
+    console.log(nearestShops);
+    if (nearestShops && nearestShops.length > 0) {
+      
+      return res.json({ success: true, data: nearestShops });
+    } else {
+      return res.json({ success: false, message: "No stores found" });
+    }
+  } catch (error) {
+    console.error('Error in nearestStore:', error);
+    return res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+const findAllStores=async(req,res)=>{
+  try {
+    const response= await shopModel.find()
+    if(response)
+    {
+      console.log(response);
+      return res.json({success:true,data:response})
+    }
+    else{
+      return res.json({success:false,message:"couldnt find stores"})
+    }
+  } catch (error) {
+    console.log(error);
+    return res.json({success:false,message:"couldnt find stores"})
+  }
+}
+const deleteStores = async (req, res) => {
+  try {
+    const { id } = req.params; 
+
+    
+    const deletedStore = await shopModel.findByIdAndDelete(id);
+
+    if (!deletedStore) {
+      return res.status(404).json({ success: false, message: "Store not found" });
+    }
+
+    res.json({ success: true, message: "Store deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting store:", error);
+    res.status(500).json({ success: false, message: "Error deleting store", error: error.message });
+  }
+};
+
+
+
+
+module.exports = { registerStore, loginStore, updateStore, nearestStore ,findAllStores,deleteStores};

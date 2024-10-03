@@ -1,31 +1,82 @@
+import React from "react";
+import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
+import { CssBaseline } from "@mui/material";
+import ProtectedRoute from "./components/IsAutherised";
 
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { CssBaseline } from '@mui/material';
-import RegisterPage from '../src/pages/Register';
-import LoginForm from './pages/login';
-import Home from './pages/Home';
-import StoreLoginForm from './pages/storeLogin';
-import StoreRegisterForm from './pages/storeReg';
-import StoreForm from './pages/CreateStore';
-import CropImage from './components/CropImage';
-import AdminHome from './pages/AdminHome';
-// import LoginPage from './LoginPage'; // Create this component similarly
+import RegisterPage from "../src/pages/Register";
+import LoginForm from "./pages/login";
+import Home from "./pages/Home";
+import StoreLoginForm from "./pages/storeLogin";
+import StoreRegisterForm from "./pages/storeReg";
+import StoreForm from "./pages/CreateStore";
+import CropImage from "./components/CropImage";
+import AdminHome from "./pages/AdminHome";
+import AddProductForm from "./pages/AddProduct";
+import ShopOwners from "./pages/ShopOwners";
+import AdminRegister from "./pages/AdminReg";
+import AdminLogin from "./pages/AdminLogin";
+import Products from "./pages/Product";
+import Cart from "./components/CartComponent";
 
+  
 const App = () => {
   return (
     <Router>
       <CssBaseline />
       <Routes>
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/login" element={<LoginForm />} />
-        <Route path="/Home" element={<Home/>} />
-        <Route path="/adminhome" element={<AdminHome/>} />
-        <Route path="/storeLogin" element={<StoreLoginForm/>} />
-        <Route path="/storeRegister" element={<StoreRegisterForm/>} />
-        <Route path="/storedatas" element={<StoreForm/>} />
-        <Route path="/cropImage" element={<CropImage/>} />
-      </Routes>
-    </Router> 
+  {/* Public routes */}
+  <Route path="/register" element={<RegisterPage />} />
+  <Route path="/login" element={<LoginForm />} />
+  <Route path="/storeLogin" element={<StoreLoginForm />} />
+  <Route path="/storeRegister" element={<StoreRegisterForm />} />
+  <Route path="/adminRegister" element={<AdminRegister />} />
+  <Route path="/adminLogin" element={<AdminLogin />} />
+  
+  {/* User routes */}
+  <Route path="/home" element={
+    <ProtectedRoute requiredRole="user">
+      <Home />
+    </ProtectedRoute>
+  } />
+  <Route path="/products" element={
+    <ProtectedRoute requiredRole="user">
+      <Products />
+    </ProtectedRoute>
+  } />
+  <Route path="/cart" element={
+    <ProtectedRoute requiredRole="user">
+      <Cart />
+    </ProtectedRoute>
+  } />
+  
+  {/* Admin routes */}
+  <Route path="/adminhome" element={
+    <ProtectedRoute requiredRole="admin">
+      <AdminHome />
+    </ProtectedRoute>
+  } />
+  <Route path="/shopowners" element={
+    <ProtectedRoute requiredRole="admin">
+      <ShopOwners />
+    </ProtectedRoute>
+  } />
+  
+  {/* Store routes */}
+  <Route path="/storehome" element={
+    <ProtectedRoute requiredRole="store">
+      <StoreForm />
+    </ProtectedRoute>
+  } />
+  <Route path="/addproduct" element={
+    <ProtectedRoute requiredRole="store">
+      <AddProductForm />
+    </ProtectedRoute>
+  } />
+  
+  {/* Catch-all route */}
+  <Route path="*" element={<Navigate to="/home" replace />} />
+</Routes>
+    </Router>
   );
 };
 

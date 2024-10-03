@@ -2,16 +2,22 @@
   "dependencies": {
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
-    "@mui/icons-material": "^6.0.1",
-    "@mui/material": "^6.0.1",
+    "@mui/icons-material": "^6.0.2",
+    "@mui/material": "^6.0.2",
+    "@mui/toolpad": "^0.1.51",
+    "@react-google-maps/api": "^2.19.3",
+    "@toolpad/core": "^0.5.2",
     "axios": "^1.7.7",
     "cloudinary-core": "^2.13.1",
     "framer-motion": "^11.3.31",
+    "lucide-react": "^0.439.0",
+    "razorpay": "^2.9.4",
     "react": "^18.3.1",
     "react-cropper": "^2.3.3",
     "react-dom": "^18.3.1",
     "react-easy-crop": "^5.0.8",
     "react-router-dom": "^6.26.1",
+    "socket.io-client": "^4.7.5",
     "vite": "^5.4.2"
   }
 }

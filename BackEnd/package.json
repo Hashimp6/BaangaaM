@@ -9,8 +9,10 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@googlemaps/google-maps-services-js": "^3.4.0",
     "bcrypt": "^5.1.1",
     "cloudinary": "^2.4.0",
+    "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
@@ -19,6 +21,8 @@
     "mongoose": "^8.5.3",
     "nodemailer": "^6.9.14",
     "passport": "^0.7.0",
-    "passport-google-oauth20": "^2.0.0"
+    "passport-google-oauth20": "^2.0.0",
+    "razorpay": "^2.9.4",
+    "socket.io": "^4.7.5"
   }
 }
