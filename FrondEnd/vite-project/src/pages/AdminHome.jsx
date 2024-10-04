@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Box,
   Drawer,
@@ -16,19 +16,45 @@ import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import LayersIcon from "@mui/icons-material/Layers";
 import PeopleIcon from "@mui/icons-material/People";
-import SettingsIcon from "@mui/icons-material/Settings"; // Settings icon
-import ExitToAppIcon from "@mui/icons-material/ExitToApp"; // Logout icon
+import SettingsIcon from "@mui/icons-material/Settings";
+import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import StoreIcon from "@mui/icons-material/Store";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
-import CategoryIcon from "@mui/icons-material/Category"; // Category icon
+import CategoryIcon from "@mui/icons-material/Category";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import AdminCatagory from "../components/AdminCatagory";
 import StoreTable from "../components/AllStore";
 import UserTable from "../components/AllUsers";
+import { adminLogout } from "../redux/slices/admin/adminSlice";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const drawerWidth = 240;
 
 const AdminHome = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [activeContent, setActiveContent] = useState('dashboard');
+
+  const renderContent = () => {
+    switch (activeContent) {
+      case 'users':
+        return <UserTable />;
+      case 'stores':
+        return <StoreTable />;
+      case 'category':
+        return <AdminCatagory />;
+      case 'dashboard':
+      default:
+        return <Typography paragraph>Dashboard content for /dashboard</Typography>;
+    }
+  };
+
+  const handleLogout = () => {
+    dispatch(adminLogout());
+    navigate("/adminLogin"); // Adjust this route as needed
+  };
+
   return (
     <Box sx={{ display: "flex" }}>
       <AppBar
@@ -61,21 +87,19 @@ const AdminHome = () => {
         <Toolbar />
         <Box sx={{ overflow: "auto" }}>
           <List>
-            <ListItem button>
+            <ListItem button onClick={() => setActiveContent('dashboard')}>
               <ListItemIcon>
                 <DashboardIcon />
               </ListItemIcon>
               <ListItemText primary="Dashboard" />
             </ListItem>
-            <ListItem button>
+            <ListItem button onClick={() => setActiveContent('users')}>
               <ListItemIcon>
                 <PeopleIcon />
               </ListItemIcon>
               <ListItemText primary="Users" />
             </ListItem>
-
-            {/* Stores Section */}
-            <ListItem button>
+            <ListItem button onClick={() => setActiveContent('stores')}>
               <ListItemIcon>
                 <StoreIcon />
               </ListItemIcon>
@@ -87,14 +111,12 @@ const AdminHome = () => {
               </ListItemIcon>
               <ListItemText primary="Orders" />
             </ListItem>
-            <ListItem button>
+            <ListItem button onClick={() => setActiveContent('category')}>
               <ListItemIcon>
                 <CategoryIcon />
               </ListItemIcon>
               <ListItemText primary="Category" />
             </ListItem>
-
-            {/* Other Management Section */}
             <ListItem button>
               <ListItemIcon>
                 <ManageAccountsIcon />
@@ -129,9 +151,7 @@ const AdminHome = () => {
               </ListItemIcon>
               <ListItemText primary="Settings" />
             </ListItem>
-
-            {/* Logout Section */}
-            <ListItem button>
+            <ListItem button onClick={handleLogout}>
               <ListItemIcon>
                 <ExitToAppIcon />
               </ListItemIcon>
@@ -142,10 +162,7 @@ const AdminHome = () => {
       </Drawer>
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <Toolbar />
-        <UserTable />
-        <Typography paragraph>Dashboard content for /dashboard</Typography>
-        <AdminCatagory />
-        <StoreTable />
+        {renderContent()}
       </Box>
     </Box>
   );

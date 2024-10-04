@@ -1,16 +1,16 @@
 // Admin Slice
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  adminInfo: null,
+  adminInfo: JSON.parse(localStorage.getItem("adminInfo")) || null,
+  authorized: localStorage.getItem("adminAuthorized") === "true" || false,
   loading: false,
   role: null,
   error: null,
-  authorized: false,
 };
 
 const adminSlice = createSlice({
-  name: 'admin',
+  name: "admin",
   initialState,
   reducers: {
     adminLoginRequest: (state) => {
@@ -23,6 +23,8 @@ const adminSlice = createSlice({
       state.role = action.payload.role;
       state.error = null;
       state.authorized = true;
+      localStorage.setItem("adminInfo", JSON.stringify(action.payload));
+      localStorage.setItem("adminAuthorized", "true");
     },
     adminLoginFailure: (state, action) => {
       state.loading = false;
@@ -34,6 +36,8 @@ const adminSlice = createSlice({
       state.role = null;
       state.authorized = false;
       state.error = null;
+      localStorage.removeItem("adminInfo");
+      localStorage.removeItem("adminAuthorized");
     },
   },
 });
@@ -42,7 +46,7 @@ export const {
   adminLoginRequest,
   adminLoginSuccess,
   adminLoginFailure,
-  adminLogout
+  adminLogout,
 } = adminSlice.actions;
 
 export default adminSlice.reducer;

@@ -1,12 +1,13 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  shopInfo: null,
+
   shops: [],
   role: null,
   selectedShop: null,
   loading: false,
-  authorized: false,
+  shopInfo: JSON.parse(localStorage.getItem("storeInfo")) || null,
+  authorized: localStorage.getItem("storeAuthorized") === "true" || false,
 };
 
 const storeSlice = createSlice({
@@ -21,6 +22,8 @@ const storeSlice = createSlice({
       state.shopInfo = action.payload.shop;
       state.role = action.payload.role;
       state.authorized = true;
+      localStorage.setItem("storeInfo", JSON.stringify(action.payload));
+      localStorage.setItem("storeAuthorized", "true");
     },
     fetchedStores: (state, action) => {
       state.loading = false;
@@ -33,6 +36,8 @@ const storeSlice = createSlice({
       state.shopInfo = null;
       state.role = null;
       state.authorized = false;
+      localStorage.removeItem("storeInfo");
+      localStorage.removeItem("storeAuthorized");
     },
   },
 });

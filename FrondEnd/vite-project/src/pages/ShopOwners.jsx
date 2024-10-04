@@ -1,46 +1,49 @@
 import React, { useEffect, useState } from "react";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
   Box,
-  Button,
-  IconButton,
-  InputAdornment,
-  Stack,
-  Switch,
-  TextField,
+  Drawer,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
   Typography,
+  AppBar,
+  Toolbar,
+  IconButton,
   Container,
+  Paper,
+  Switch,
   Snackbar,
 } from "@mui/material";
 import MuiAlert from "@mui/material/Alert";
 import {
-  Search as SearchIcon,
-  Add as AddIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
+  Dashboard as DashboardIcon,
+  ShoppingCart as ShoppingCartIcon,
+  Settings as SettingsIcon,
+  ExitToApp as ExitToAppIcon,
+  Inventory as InventoryIcon,
   Message as MessageIcon,
 } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
-import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import {
   fetchProductsRequest,
   fetchProductsSuccess,
 } from "../redux/slices/product/products";
 import RightDrawer from "../components/MessageDrawer";
-import { useNavigate } from "react-router-dom";
+import ProductSection from "../components/ProductSection";
+import OrdersSection from "../components/OrderSection";
+import axios from "axios";
+import { storeLogout } from "../redux/slices/store/storesSlice";
 
 const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
-const ShopOwners = () => {
-  const [searchTerm, setSearchTerm] = useState("");
+const drawerWidth = 240;
+
+const ShopOwner = () => {
+  const [activeContent, setActiveContent] = useState('dashboard');
   const [isOpen, setIsOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [snackbar, setSnackbar] = useState({
@@ -48,6 +51,7 @@ const ShopOwners = () => {
     message: "",
     severity: "success",
   });
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -55,13 +59,17 @@ const ShopOwners = () => {
   const products = useSelector((state) => state.product.products);
   const loading = useSelector((state) => state.product.loading);
 
+
+  const handleLogout = () => {
+    dispatch(storeLogout());
+    navigate("/storelogin"); // Adjust this route as needed
+  };
   const fetchProducts = async () => {
     try {
       dispatch(fetchProductsRequest());
       const response = await axios.get(
-        `http://localhost:3200/product/allProducts/${shopInfo.email}`, {
-          withCredentials: true 
-        }
+        `http://localhost:3200/product/allProducts/${shopInfo.email}`,
+        { withCredentials: true }
       );
       if (response.data) {
         dispatch(fetchProductsSuccess(response.data.data));
@@ -75,43 +83,8 @@ const ShopOwners = () => {
     fetchProducts();
   }, [dispatch, shopInfo.email]);
 
-  const handleSearchChange = (event) => setSearchTerm(event.target.value);
   const handleStoreOpenChange = (event) => setIsOpen(event.target.checked);
-  const handleOpenDrawer = () => setDrawerOpen(true);
-  const handleCloseDrawer = () => setDrawerOpen(false);
-  const handleAddProductClick = () => navigate("/addproduct");
-  const handleEditClick = () => navigate("/storedatas");
-
-  const handleDeleteProduct = async (id) => {
-    try {
-      console.log("starting delete");
-      const response = await axios.delete(
-        `http://localhost:3200/product/delete/${id}`
-      );
-      if (response.data.success) {
-        await fetchProducts();
-        setSnackbar({
-          open: true,
-          message: "Product deleted successfully",
-          severity: "success",
-        });
-      } else {
-        setSnackbar({
-          open: true,
-          message: `Failed to delete product:`,
-          severity: "error",
-        });
-      }
-    } catch (error) {
-      console.error("Error deleting product:", error);
-      setSnackbar({
-        open: true,
-        message: `Error deleting product: ${error.message}`,
-        severity: "error",
-      });
-    }
-  };
-
+  const handleMessageDrawer = () => setDrawerOpen(!drawerOpen);
   const handleCloseSnackbar = (event, reason) => {
     if (reason === "clickaway") {
       return;
@@ -119,198 +92,125 @@ const ShopOwners = () => {
     setSnackbar({ ...snackbar, open: false });
   };
 
+  const renderContent = () => {
+    switch (activeContent) {
+      case 'products':
+        return (
+          <ProductSection 
+            products={products}
+            fetchProducts={fetchProducts}
+            setSnackbar={setSnackbar}
+          />
+        );
+      case 'orders':
+        return <OrdersSection />;
+      case 'dashboard':
+      default:
+        return (
+          <Paper sx={{ p: 3, mt: 3 }}>
+            <Typography variant="h6" gutterBottom>Dashboard Overview</Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+              <Paper elevation={3} sx={{ p: 2, flex: 1, mr: 2 }}>
+                <Typography variant="h6">Total Products</Typography>
+                <Typography variant="h4">{products.length}</Typography>
+              </Paper>
+              <Paper elevation={3} sx={{ p: 2, flex: 1, mr: 2 }}>
+                <Typography variant="h6">Total Orders</Typography>
+                <Typography variant="h4">0</Typography>
+              </Paper>
+              <Paper elevation={3} sx={{ p: 2, flex: 1 }}>
+                <Typography variant="h6">Revenue</Typography>
+                <Typography variant="h4">$0</Typography>
+              </Paper>
+            </Box>
+          </Paper>
+        );
+    }
+  };
+
   if (loading) return <Typography>Loading...</Typography>;
 
   return (
-    <Container
-      maxWidth="lg"
-      sx={{ bgcolor: "background.default", color: "text.primary", py: 4 }}
-    >
-      <Typography variant="h4" align="center" gutterBottom>
-        {shopInfo.shopName
-          ? `Welcome ${shopInfo.shopName}`
-          : `Welcome ${shopInfo.name}`}
-      </Typography>
-
-      <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 3 }}>
-        <Paper
-          elevation={3}
-          sx={{
-            p: 2,
-            display: "inline-flex",
-            alignItems: "center",
-            bgcolor: "background.paper",
-          }}
-        >
-          <Typography variant="body1" sx={{ mr: 2 }}>
-            Store Status:
-          </Typography>
-          <Switch checked={isOpen} onChange={handleStoreOpenChange} />
-          <Typography variant="body1" sx={{ ml: 1 }}>
-            {isOpen ? "Open" : "Closed"}
-          </Typography>
-        </Paper>
-      </Box>
-
-      <Box
+    <Box sx={{ display: "flex" }}>
+      <AppBar
+        position="fixed"
         sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          mb: 3,
+          backgroundColor: "teal",
+          zIndex: (theme) => theme.zIndex.drawer + 1,
         }}
       >
-        <TextField
-          variant="outlined"
-          placeholder="Search products..."
-          value={searchTerm}
-          onChange={handleSearchChange}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon />
-              </InputAdornment>
-            ),
-          }}
-          sx={{ bgcolor: "background.paper" }}
-        />
-        <Stack direction="row" spacing={2}>
-          <Button
-            variant="outlined"
-            sx={{
-              color: "teal",
-              borderColor: "teal",
-              "&:hover": {
-                borderColor: "teal",
-                bgcolor: "rgba(0, 128, 128, 0.04)",
-              },
-            }}
-            startIcon={<AddIcon />}
-            onClick={handleAddProductClick}
-          >
-            Add Product
-          </Button>
-          <Button
-            variant="contained"
-            sx={{ bgcolor: "teal", "&:hover": { bgcolor: "darkcyan" } }}
-            startIcon={<EditIcon />}
-            onClick={handleEditClick}
-          >
-            Edit Store Data
-          </Button>
-          <Button
-            variant="contained"
-            sx={{ bgcolor: "green", "&:hover": { bgcolor: "darkgreen" } }}
-            startIcon={<MessageIcon />}
-            onClick={handleOpenDrawer}
-          >
-            Messages
-          </Button>
-        </Stack>
+        <Toolbar>
+          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+            {shopInfo.shopName ? shopInfo.shopName : shopInfo.name}
+          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Typography variant="body1" sx={{ mr: 2 }}>
+              Store Status:
+            </Typography>
+            <Switch checked={isOpen} onChange={handleStoreOpenChange} />
+            <IconButton color="inherit" onClick={handleMessageDrawer}>
+              <MessageIcon />
+            </IconButton>
+          </Box>
+        </Toolbar>
+      </AppBar>
+      <Drawer
+        variant="permanent"
+        sx={{
+          width: drawerWidth,
+          flexShrink: 0,
+          [`& .MuiDrawer-paper`]: {
+            width: drawerWidth,
+            boxSizing: "border-box",
+          },
+        }}
+      >
+        <Toolbar />
+        <Box sx={{ overflow: "auto" }}>
+          <List>
+            <ListItem button onClick={() => setActiveContent('dashboard')}>
+              <ListItemIcon>
+                <DashboardIcon />
+              </ListItemIcon>
+              <ListItemText primary="Dashboard" />
+            </ListItem>
+            <ListItem button onClick={() => setActiveContent('products')}>
+              <ListItemIcon>
+                <InventoryIcon />
+              </ListItemIcon>
+              <ListItemText primary="Products" />
+            </ListItem>
+            <ListItem button onClick={() => setActiveContent('orders')}>
+              <ListItemIcon>
+                <ShoppingCartIcon />
+              </ListItemIcon>
+              <ListItemText primary="Orders" />
+            </ListItem>
+          </List>
+          <List>
+            <ListItem button onClick={() => navigate("/storehome")}>
+              <ListItemIcon>
+                <SettingsIcon />
+              </ListItemIcon>
+              <ListItemText primary="Store Settings" />
+            </ListItem>
+            <ListItem button onClick={handleLogout}>
+              <ListItemIcon>
+                <ExitToAppIcon />
+              </ListItemIcon>
+              <ListItemText primary="Logout" />
+            </ListItem>
+          </List>
+        </Box>
+      </Drawer>
+      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+        <Toolbar />
+        {renderContent()}
       </Box>
-
-      <TableContainer component={Paper} sx={{ bgcolor: "background.paper" }}>
-        <Table sx={{ minWidth: 700 }} aria-label="product table">
-          <TableHead>
-            <TableRow>
-              <TableCell
-                sx={{ fontWeight: "bold", color: "white", bgcolor: "black" }}
-              >
-                Product Name & Brand
-              </TableCell>
-              <TableCell
-                align="center"
-                sx={{ fontWeight: "bold", color: "white", bgcolor: "black" }}
-              >
-                Category
-              </TableCell>
-              <TableCell
-                align="center"
-                sx={{ fontWeight: "bold", color: "white", bgcolor: "black" }}
-              >
-                Price
-              </TableCell>
-              <TableCell
-                align="center"
-                sx={{ fontWeight: "bold", color: "white", bgcolor: "black" }}
-              >
-                Offer Price
-              </TableCell>
-              <TableCell
-                align="center"
-                sx={{ fontWeight: "bold", color: "white", bgcolor: "black" }}
-              >
-                Image
-              </TableCell>
-              <TableCell
-                align="center"
-                sx={{ fontWeight: "bold", color: "white", bgcolor: "black" }}
-              >
-                Actions
-              </TableCell>
-              <TableCell
-                align="center"
-                sx={{ fontWeight: "bold", color: "white", bgcolor: "black" }}
-              >
-                Active
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {products.map((product) => (
-              <TableRow
-                key={product._id}
-                sx={{ "&:nth-of-type(odd)": { bgcolor: "grey.300" } }}
-              >
-                <TableCell component="th" scope="row">
-                  {product.product_name} - {product.brandName}
-                </TableCell>
-                <TableCell align="center">{product.category}</TableCell>
-                <TableCell align="center">${product.originalPrice}</TableCell>
-                <TableCell align="center">
-                  ${product.offerPrice || "-"}
-                </TableCell>
-                <TableCell align="center">
-                  <img
-                    src={product.image}
-                    alt={product.productName}
-                    style={{
-                      width: "50px",
-                      height: "50px",
-                      objectFit: "cover",
-                    }}
-                  />
-                </TableCell>
-                <TableCell align="center">
-                  <IconButton
-                    color="primary"
-                    onClick={() => alert(`Edit ${product.productName}`)}
-                  >
-                    <EditIcon sx={{ color: "black" }} />
-                  </IconButton>
-                  <IconButton
-                    color="error"
-                    onClick={() => handleDeleteProduct(product._id)}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </TableCell>
-                <TableCell align="center">
-                  <Switch
-                    checked={product.isActive}
-                    onChange={() => {}}
-                    color="primary"
-                  />
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-
+      
       <RightDrawer
         open={drawerOpen}
-        onClose={handleCloseDrawer}
+        onClose={() => setDrawerOpen(false)}
         storeId={null}
         showchat={false}
         isAdmin={true}
@@ -329,8 +229,8 @@ const ShopOwners = () => {
           {snackbar.message}
         </Alert>
       </Snackbar>
-    </Container>
+    </Box>
   );
 };
 
-export default ShopOwners;
+export default ShopOwner;

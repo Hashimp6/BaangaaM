@@ -6,11 +6,16 @@ const orderSchema = mongoose.Schema({
     ref: 'User',
     required: true
   },
+  store: {  // New field for store
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Store',  // Assuming you have a Store model
+    required: true
+  },
   orderItems: [
     {
-      name: { type: String,  },
-      qty: { type: Number, },
-      price: { type: Number,},
+      name: { type: String },
+      qty: { type: Number },
+      price: { type: Number },
       product: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Product',
@@ -19,17 +24,15 @@ const orderSchema = mongoose.Schema({
     }
   ],
   shippingAddress: {
-    address: { type: String,},
-    city: { type: String, },
-    postalCode: { type: String, },
-    country: { type: String, }
+    address: { type: String },
+    city: { type: String },
+    postalCode: { type: String },
+    country: { type: String }
   },
-  paymentMethod: { type: String, },
- 
- 
+  paymentMethod: { type: String },
   totalPrice: { type: Number, default: 0.0 },
-  isPaid: { type: Boolean,  default: false },
-  isDelivered: { type: Boolean,  default: false },
+  isPaid: { type: Boolean, default: false },
+  isDelivered: { type: Boolean, default: false },
   deliveredAt: { type: Date },
 }, {
   timestamps: true

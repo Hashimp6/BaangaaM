@@ -17,30 +17,43 @@ import {
   DialogContent,
   DialogTitle,
   TextField,
+  useMediaQuery,
+  useTheme,
+  Drawer,
+  List,
+  ListItem,
+  ListItemText,
 } from "@mui/material";
+import MenuIcon from "@mui/icons-material/Menu";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import ChatIcon from "@mui/icons-material/Chat";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import appLogo from "../../public/pics/appLogo.jpg";
 import { useDispatch, useSelector } from "react-redux";
-import { getCoordinates } from "../redux/slices/users/usersSlic";
+import { getCoordinates, logout } from "../redux/slices/users/usersSlic";
 import RightDrawer from "./MessageDrawer";
 import { useNavigate } from "react-router-dom";
+import UserMenu from "./UserProfile";
 
 const pages = ["Home", "Shops", "Product", "Contact Us"];
-const settings = ["Profile", "Account", "Dashboard", "Logout"];
+const settings = ["Profile", "Logout"];
 
 function NavBar() {
-  const [anchorElNav, setAnchorElNav] = useState(null);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [anchorElUser, setAnchorElUser] = useState(null);
   const [location, setLocation] = useState("");
   const [chatOpen, setChatOpen] = useState(false);
-  const [open, setOpen] = useState(false);
+  const [locationDialogOpen, setLocationDialogOpen] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
   const autocompleteRef = useRef(null);
   const geocoderRef = useRef(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const userInfo = useSelector((state) => state.user.userInfo?.user);
+ 
 
   useEffect(() => {
     if (window.google && window.google.maps) {
@@ -58,7 +71,6 @@ function NavBar() {
           const { latitude, longitude } = position.coords;
           const coords = { lat: latitude, lng: longitude };
           dispatch(getCoordinates(coords));
-          console.log(coords);
           reverseGeocode(latitude, longitude);
         },
         (error) => {
@@ -71,13 +83,13 @@ function NavBar() {
     }
   };
 
-  const handleOpenNavMenu = (event) => setAnchorElNav(event.currentTarget);
-  const handleCloseNavMenu = () => setAnchorElNav(null);
   const handleOpenUserMenu = (event) => setAnchorElUser(event.currentTarget);
   const handleCloseUserMenu = () => setAnchorElUser(null);
-  const handleOpenDialog = () => setOpen(true);
-  const handleCloseDialog = () => setOpen(false);
-  const handleCart=()=> navigate('/cart')
+  const handleLocationDialogOpen = () => setLocationDialogOpen(true);
+  const handleLocationDialogClose = () => setLocationDialogOpen(false);
+  const handleCart = () => navigate("/cart");
+  const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen);
+ 
 
   const handleSearchLocation = async (input) => {
     if (!input || !autocompleteRef.current) return;
@@ -110,23 +122,16 @@ function NavBar() {
   const handleSelectSuggestion = (suggestion) => {
     setLocation(suggestion.description);
     setSuggestions([]);
-    console.log(suggestion.description);
     geocodeAddress(suggestion.description);
   };
 
   const geocodeAddress = (address) => {
     if (!geocoderRef.current) return;
-
     geocoderRef.current.geocode({ address: address }, (results, status) => {
       if (status === "OK" && results[0]) {
         const { lat, lng } = results[0].geometry.location;
         const coords = { lat: lat(), lng: lng() };
         dispatch(getCoordinates(coords));
-        console.log(coords);
-      } else {
-        console.error(
-          "Geocode was not successful for the following reason: " + status
-        );
       }
     });
   };
@@ -134,10 +139,9 @@ function NavBar() {
   const reverseGeocode = async (latitude, longitude) => {
     try {
       const response = await fetch(
-        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=AIzaSyAWdpzsOIeDYSG76s3OncbRHmm5pBwiG24`
-      , {
-        withCredentials: true 
-      });
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=AIzaSyAWdpzsOIeDYSG76s3OncbRHmm5pBwiG24`,
+        { withCredentials: true }
+      );
       const data = await response.json();
       if (data.results && data.results.length > 0) {
         setLocation(data.results[0].formatted_address);
@@ -150,116 +154,115 @@ function NavBar() {
     }
   };
 
-  
-  const handleChatOpen = () => {
-    setChatOpen(true);
-  };
-
-  const handleChatClose = () => {
-    setChatOpen(false);
-  };
+  const handleChatOpen = () => setChatOpen(true);
+  const handleChatClose = () => setChatOpen(false);
 
   return (
     <AppBar position="static" sx={{ height: "10vh", backgroundColor: "teal" }}>
       <Container maxWidth="xl">
-        <Toolbar
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
+        <Toolbar sx={{ justifyContent: "space-between" }}>
+          {isMobile && (
+            <IconButton
+              color="inherit"
+              aria-label="open menu"
+              edge="start"
+              onClick={toggleMobileMenu}
+            >
+              <MenuIcon />
+            </IconButton>
+          )}
+
           {/* Logo */}
-          <Box sx={{ display: "flex", alignItems: "center", mr: 4 }}>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
             <img
               src={appLogo}
               alt="Logo"
-              style={{ width: "150px", height: "auto", borderRadius: "5px" }}
+              style={{
+                width: isMobile ? "100px" : "150px",
+                height: "auto",
+                borderRadius: "5px",
+              }}
             />
           </Box>
 
-          {/* Navigation Menu */}
-          <Box sx={{ display: "flex", alignItems: "center", flexGrow: 1 }}>
-            {pages.map((page) => (
-              <Button
-                key={page}
-                onClick={handleCloseNavMenu}
-                sx={{ my: 2, color: "white", display: "block" }}
-              >
-                {page}
-              </Button>
-            ))}
-          </Box>
+          {/* Desktop Navigation Menu */}
+          {!isMobile && (
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                flexGrow: 1,
+                justifyContent: "center",
+              }}
+            >
+              {pages.map((page) => (
+                <Button key={page} sx={{ color: "white" }}>
+                  {page}
+                </Button>
+              ))}
+            </Box>
+          )}
 
-       
-
-          {/* User settings and notifications */}
-          <Box sx={{ flexGrow: 0, display: "flex", alignItems: "center" }}>
+          {/* Right side icons */}
+          <Box sx={{ display: "flex", alignItems: "center" }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu}>
                 <Avatar
-                  alt="User Avatar"
-                  src="/static/images/avatar/2.jpg"
-                  sx={{ width: 30, height: 30, marginRight: 5 }}
-                />
+                  sx={{ width: 30, height: 30 }}
+                >{userInfo?.name ? userInfo.name[0].toUpperCase() : 'U'}
+        </Avatar>
               </IconButton>
             </Tooltip>
-               {/* Location Search */}
-          <IconButton onClick={handleOpenDialog}>
-            <LocationOnIcon
-              sx={{ color: "white", marginRight: "1.5vw", cursor: "pointer" }}
-            />
-          </IconButton>
-            <IconButton
-              size="large"
-              aria-label="show cart items"
-              color="inherit"
-              onClick={handleCart}
-            >
+            <IconButton onClick={handleLocationDialogOpen}>
+              <LocationOnIcon sx={{ color: "white" }} />
+            </IconButton>
+
+            <IconButton onClick={handleCart}>
               <Badge badgeContent={4} color="error">
-                <ShoppingCartIcon />
+                <ShoppingCartIcon sx={{ color: "white" }} />
               </Badge>
             </IconButton>
-            <IconButton onClick={handleChatOpen} size="large" aria-label="open chat" color="inherit">
+            <IconButton onClick={handleChatOpen}>
               <Badge badgeContent={17} color="error">
-                <ChatIcon />
+                <ChatIcon sx={{ color: "white" }} />
               </Badge>
             </IconButton>
           </Box>
         </Toolbar>
       </Container>
 
+      {/* Mobile Menu Drawer */}
+      <Drawer anchor="left" open={mobileMenuOpen} onClose={toggleMobileMenu}>
+        <List sx={{ width: 250 }}>
+          {pages.map((page) => (
+            <ListItem button key={page}>
+              <ListItemText primary={page} />
+            </ListItem>
+          ))}
+          {isMobile && (
+            <ListItem button onClick={handleLocationDialogOpen}>
+              <ListItemText primary="Set Location" />
+            </ListItem>
+          )}
+        </List>
+      </Drawer>
+
       {/* User Menu */}
-      <Menu
-        sx={{ mt: "45px" }}
-        id="menu-appbar"
-        anchorEl={anchorElUser}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-        keepMounted
-        transformOrigin={{ vertical: "top", horizontal: "right" }}
-        open={Boolean(anchorElUser)}
-        onClose={handleCloseUserMenu}
-      >
-        {settings.map((setting) => (
-          <MenuItem key={setting} onClick={handleCloseUserMenu}>
-            <Typography sx={{ textAlign: "center" }}>{setting}</Typography>
-          </MenuItem>
-        ))}
-      </Menu>
+      <UserMenu 
+          anchorElUser={anchorElUser}
+          handleCloseUserMenu={handleCloseUserMenu}
+        />
 
+      {/* Chat Drawer */}
+      <RightDrawer
+        open={chatOpen}
+        onClose={handleChatClose}
+        storeId={null}
+        showchat={false}
+      />
 
-      <RightDrawer 
-  open={chatOpen} 
-  onClose={handleChatClose} 
-  storeId={null} 
-  showchat={false} 
-/>
-
-   
-
-
-      {/* Location Search Dialog */}
-      <Dialog open={open} onClose={handleCloseDialog}>
+      {/* Location Dialog */}
+      <Dialog open={locationDialogOpen} onClose={handleLocationDialogClose}>
         <DialogTitle>Location Search</DialogTitle>
         <DialogContent>
           <Button variant="outlined" onClick={getCurrentLocation}>
@@ -276,20 +279,21 @@ function NavBar() {
             onChange={handleLocationChange}
           />
           {suggestions.length > 0 && (
-            <ul>
+            <List>
               {suggestions.map((suggestion) => (
-                <li
+                <ListItem
+                  button
                   key={suggestion.place_id}
                   onClick={() => handleSelectSuggestion(suggestion)}
                 >
-                  {suggestion.description}
-                </li>
+                  <ListItemText primary={suggestion.description} />
+                </ListItem>
               ))}
-            </ul>
+            </List>
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog} color="primary">
+          <Button onClick={handleLocationDialogClose} color="primary">
             OK
           </Button>
         </DialogActions>
