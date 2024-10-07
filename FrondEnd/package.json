@@ -4,7 +4,7 @@
     "@emotion/styled": "^11.13.0",
     "@mui/icons-material": "^6.0.2",
     "@mui/material": "^6.0.2",
-    "@mui/toolpad": "^0.1.51",
+    "@mui/toolpad": "^0.1.37",
     "@react-google-maps/api": "^2.19.3",
     "@toolpad/core": "^0.5.2",
     "axios": "^1.7.7",
