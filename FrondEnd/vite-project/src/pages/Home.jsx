@@ -6,13 +6,19 @@ import MiddleBar from "../components/MiddleBar";
 
 function Home() {
   return (
-    <div>
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <NavBar />
-      <Box display="flex">
-        <Sidebar type={"shop"} />
+      <Box 
+        sx={{
+          display: 'flex',
+          flexDirection: { xs: 'column', md: 'row' },
+          flex: 1,
+        }}
+      >
+        <Sidebar type="shop" />
         <MiddleBar />
       </Box>
-    </div>
+    </Box>
   );
 }
 

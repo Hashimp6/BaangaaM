@@ -135,8 +135,8 @@ function RegisterForm() {
         elevation={24}
         sx={{
           height: "auto",
-          width: "35%",
-          padding: 3,
+          width: { xs: '90%', sm: '70%', md: '50%', lg: '35%' },
+          padding: { xs: 2, sm: 3, md: 3 },
         }}
       >
         {otpWindow ? (

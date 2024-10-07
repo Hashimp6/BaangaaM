@@ -114,10 +114,10 @@ function AdminLogin() {
         elevation={24}
         sx={{
           width: {
-            xs: "80%",
+            xs: "90%",
             md: "35%",
           },
-          padding: 3,
+          padding: { xs: 1, sm: 3, md: 3 },
         }}
       >
         <Box

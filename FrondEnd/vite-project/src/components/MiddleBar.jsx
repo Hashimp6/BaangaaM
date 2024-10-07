@@ -1,16 +1,29 @@
-import { Box, Divider, Typography } from "@mui/material";
+import {
+  Box,
+  Divider,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import StoreCard from "./StoreCards"; // Ensure the import path is correct
 import backgroundImage from "../../public/pics/storehero.png";
 import { useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchedStores, setSelectedShop } from "../redux/slices/store/storesSlice";
+import {
+  fetchedStores,
+  setSelectedShop,
+} from "../redux/slices/store/storesSlice";
+
 function MiddleBar() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const coordinates = useSelector((state) => state.user?.userLocation);
-  const stores = useSelector((state) => state.store.shops); // Access stores from Redux state
+  const stores = useSelector((state) => state.store.shops);
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   useEffect(() => {
     const fetchStores = async () => {
@@ -18,8 +31,9 @@ function MiddleBar() {
       try {
         const response = await axios.post(
           "http://localhost:3200/store/near_stores",
-          coordinates, {
-            withCredentials: true 
+          coordinates,
+          {
+            withCredentials: true,
           }
         );
         if (response && response.data.data) {
@@ -42,44 +56,45 @@ function MiddleBar() {
   return (
     <Box
       sx={{
-        width: "80vw",
-        height: "90vh",
-        paddingLeft: "2vw",
+        width: "100%",
+        height: { xs: "auto", md: "90vh" },
         overflowY: "auto",
         "&::-webkit-scrollbar": {
           display: "none",
         },
+        padding: { xs: 0, sm: "0 3vw", md: "0 2vw" },
       }}
     >
       <Box
         sx={{
-          width: "60vw",
-          height: "60vh",
+          width: "100%",
+          height: { xs: "30vh", sm: "50vh", md: "60vh" },
           backgroundImage: `url(${backgroundImage})`,
           backgroundSize: "cover",
+          backgroundPosition: "center",
           position: "relative",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          marginTop: "30px",
-          marginBottom: "30px",
-          borderRadius: "1vw",
+          marginTop: { xs: 0, sm: "20px", md: "30px" },
+          marginBottom: { xs: "5px", sm: "20px", md: "30px" },
+          borderRadius: { xs: 0, sm: "1.5vw", md: "1vw" },
         }}
       >
         {/* Quote Box at the bottom-left */}
         <Box
           sx={{
             position: "absolute",
-            bottom: "4vh",
-            left: "20px",
-            backgroundColor: "rgba(0, 0, 0, 0.5)", // Transparent black background
+            bottom: { xs: "2vh", sm: "3vh", md: "4vh" },
+            left: { xs: "10px", sm: "15px", md: "20px" },
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
             color: "white",
-            padding: "10px 20px",
+            padding: { xs: "5px 10px", sm: "8px 15px", md: "10px 20px" },
             borderRadius: "8px",
-            maxWidth: "40vw", // Adjust to your needs
+            maxWidth: { xs: "90%", sm: "60vw", md: "40vw" },
           }}
         >
-          <Typography variant="h4">
+          <Typography variant={isMobile ? "h6" : "h4"}>
             Everything around you is here. Make a click and do it
           </Typography>
           <Typography
@@ -90,26 +105,28 @@ function MiddleBar() {
           </Typography>
         </Box>
       </Box>
-      <Divider sx={{ width: "60vw", padding: "2vh" }} />
-      {stores.length === 0 ? (
-        <p>No stores found within the specified range.</p>
-      ) : (
-        stores.map((storeItem) => (
-          <StoreCard
-            key={storeItem.id}
-            store={{
-              storeId: storeItem.shop._id,
-              banner: storeItem.shop.banner,
-              logo: storeItem.shop.logo,
-              name: storeItem.shop.shopName,
-              address: storeItem.shop.address,
-              phone: storeItem.shop.phone,
-              favorites: storeItem.shop.isFavorite,
-            }}
-            onClick={() => handleStoreClick(storeItem.shop)}
-          />
-        ))
-      )}
+      <Divider sx={{ width: "100%", padding: "1.5vh" }} />
+      <Box sx={{ padding: { xs: "0 10px", sm: 0 } }}>
+        {stores.length === 0 ? (
+          <Typography>No stores found within the specified range.</Typography>
+        ) : (
+          stores.map((storeItem) => (
+            <StoreCard
+              key={storeItem.id}
+              store={{
+                storeId: storeItem.shop._id,
+                banner: storeItem.shop.banner,
+                logo: storeItem.shop.logo,
+                name: storeItem.shop.shopName,
+                address: storeItem.shop.address,
+                phone: storeItem.shop.phone,
+                favorites: storeItem.shop.isFavorite,
+              }}
+              onClick={() => handleStoreClick(storeItem.shop)}
+            />
+          ))
+        )}
+      </Box>
     </Box>
   );
 }

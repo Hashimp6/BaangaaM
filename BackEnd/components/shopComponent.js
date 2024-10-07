@@ -256,6 +256,7 @@ const findAllStores=async(req,res)=>{
   }
 }
 const deleteStores = async (req, res) => {
+  console.log("is in delete back");
   try {
     const { id } = req.params; 
 

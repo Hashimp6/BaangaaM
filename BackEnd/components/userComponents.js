@@ -120,8 +120,10 @@ const allUsers = async (req, res) => {
 };
 
 const deleteUser = async (req, res) => {
+  console.log("is in delete back");
   try {
-    const result = await userModel.findByIdAndDelete(req.params.id);
+    const { id } = req.params; 
+    const result = await userModel.findByIdAndDelete(id);
     if (result) {
       return res.json({ success: true, message: "User deleted successfully" });
     } else {

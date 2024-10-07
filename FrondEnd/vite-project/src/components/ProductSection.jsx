@@ -11,7 +11,6 @@ import {
   Button,
   IconButton,
   InputAdornment,
-  Stack,
   Switch,
   TextField,
 } from "@mui/material";

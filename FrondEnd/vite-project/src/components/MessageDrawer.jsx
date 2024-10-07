@@ -26,9 +26,7 @@ const RightDrawer = ({
     setChatScreen(showchat);
     if (storeName) {
       setOpponentName(storeName);
-    }
-    console.log("opponent ", opponentId, storeId); // May not show updated opponentId immediately
-  }, [showchat, storeId, storeName]);
+    } }, [showchat, storeId, storeName]);
 
   return (
     <Drawer
@@ -37,7 +35,11 @@ const RightDrawer = ({
       onClose={onClose}
       PaperProps={{
         sx: {
-          width: "40vw",
+          width: {
+            xs: "100vw", 
+            sm: "100vw", 
+            md: "40vw", 
+          },
           height: "100vh",
           borderRadius: "10px",
         },

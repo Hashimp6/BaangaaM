@@ -28,20 +28,17 @@ function MiddleProducts() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const dispatch = useDispatch();
 
-  const handleMessageClick = (product) => {
-    setSelectedProduct(product);
-    setDrawerOpen(true);
-  };
   const selectedShop = useSelector((state) => state.store.selectedShop);
   const userInfo = useSelector((state) => state.user?.userInfo);
-  const userdd = userInfo ? userInfo._Id : null;
-  const userId = "66d7d20144b4f47cc5f8e8de";
+  const userId = userInfo ? userInfo.user._id : null;
+  console.log("user Id from middle product", userId);
+
   useEffect(() => {
     if (selectedShop?.email) {
       const email = selectedShop.email;
       axios
         .get(`http://localhost:3200/product/allProducts/${email}`, {
-          withCredentials: true 
+          withCredentials: true,
         })
         .then((response) => {
           setProducts(response.data.data);
@@ -63,8 +60,9 @@ function MiddleProducts() {
           productPrice: product.offerPrice,
           productImage: product.image,
           quantity: 1,
-        }, {
-          withCredentials: true 
+        },
+        {
+          withCredentials: true,
         }
       );
       dispatch(addToCartSuccess(response.data));
@@ -73,6 +71,11 @@ function MiddleProducts() {
       dispatch(addToCartFailure(error.message));
       console.error("Error adding to cart:", error);
     }
+  };
+
+  const handleMessageClick = (product) => {
+    setSelectedProduct(product);
+    setDrawerOpen(true);
   };
 
   const handleFavoriteToggle = async (productId) => {
@@ -86,17 +89,25 @@ function MiddleProducts() {
 
       const product = products.find((p) => p._id === productId);
       if (product.isFavorite) {
-        await axios.post("http://localhost:3200/product/remove-from-favorite", {
-          productId: productId,
-        }, {
-          withCredentials: true 
-        });
+        await axios.post(
+          "http://localhost:3200/product/remove-from-favorite",
+          {
+            productId: productId,
+          },
+          {
+            withCredentials: true,
+          }
+        );
       } else {
-        await axios.post("http://localhost:3200/product/add-to-favorite", {
-          productId: productId,
-        }, {
-          withCredentials: true 
-        });
+        await axios.post(
+          "http://localhost:3200/product/add-to-favorite",
+          {
+            productId: productId,
+          },
+          {
+            withCredentials: true,
+          }
+        );
       }
     } catch (error) {
       console.error("Error toggling favorite:", error);
@@ -115,7 +126,10 @@ function MiddleProducts() {
       sx={{
         flex: 1,
         overflowY: "auto",
-        width: "80vw",
+        width: {
+          xs: "100vw",
+          md: "80vw",
+        },
         height: "90vh",
         backgroundColor: "teal",
         display: "flex",

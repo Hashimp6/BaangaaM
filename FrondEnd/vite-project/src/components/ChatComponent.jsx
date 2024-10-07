@@ -10,9 +10,10 @@ import PropTypes from "prop-types";
 import io from "socket.io-client";
 import { Avatar, ListItemAvatar } from "@mui/material";
 
+// Move socket initialization outside component to prevent reconnection on re-renders
 const socket = io("http://localhost:3200");
 
-const ChatComponent = ({
+const ChatComponent = React.memo(({
   opponentId,
   isAdmin,
   opponentName,
@@ -23,11 +24,14 @@ const ChatComponent = ({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const chatBoxRef = useRef(null);
+  const messagesSentRef = useRef(false);
+  
   const userInfo = useSelector((state) => state.user?.userInfo);
   const shopInfo = useSelector((state) => state.store.shopInfo);
-  const userId = isAdmin
-    ? shopInfo?._id
-    : userInfo?._id || "66d7d20144b4f47cc5f8e8de";
+  const userId = useMemo(() => 
+    isAdmin ? shopInfo?._id : userInfo?._id || "66d7d20144b4f47cc5f8e8de",
+    [isAdmin, shopInfo?._id, userInfo?._id]
+  );
 
   const joinRoom = useCallback(() => {
     if (!userId || !opponentId) return;
@@ -46,7 +50,7 @@ const ChatComponent = ({
     };
 
     const handleReceiveMessage = (message) => {
-      setMessages((prevMessages) => [...prevMessages, message]);
+      setMessages(prev => [...prev, message]);
     };
 
     const handleError = (errorMessage) => {
@@ -65,28 +69,14 @@ const ChatComponent = ({
     };
   }, [userId, opponentId, joinRoom]);
 
+  // Separate useEffect for product details message
   useEffect(() => {
-    if (chatBoxRef.current) {
-      chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
-    }
-  }, [messages]);
-
-  const sendMessage = useCallback(() => {
-    if (newMessage.trim()) {
-      socket.emit("sendMessage", {
-        userId,
-        opponentId,
-        message: newMessage,
-      });
-      setNewMessage("");
-    }
-  }, [userId, opponentId, newMessage]);
-
-  useEffect(() => {
-    if (productDetails) {
+    if (productDetails && !messagesSentRef.current) {
+      messagesSentRef.current = true;
+      
       const initialMessage = `Hi, I'm interested in this product:
-  Name: ${productDetails.name}
-  Price: $${productDetails.price}`;
+Name: ${productDetails.name}
+Price: $${productDetails.price}`;
 
       socket.emit("sendMessage", {
         userId,
@@ -103,6 +93,17 @@ const ChatComponent = ({
       }
     }
   }, [productDetails, userId, opponentId]);
+
+  const sendMessage = useCallback(() => {
+    if (newMessage.trim()) {
+      socket.emit("sendMessage", {
+        userId,
+        opponentId,
+        message: newMessage,
+      });
+      setNewMessage("");
+    }
+  }, [userId, opponentId, newMessage]);
 
   const markMessageAsRead = useCallback(
     (messageId) => {
@@ -142,6 +143,16 @@ const ChatComponent = ({
       );
     }
   }, []);
+
+  const scrollToBottom = useCallback(() => {
+    if (chatBoxRef.current) {
+      chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+    }
+  }, []);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, scrollToBottom]);
 
   const renderChatContent = useMemo(() => {
     if (isLoading) {
@@ -348,7 +359,9 @@ const ChatComponent = ({
       </Box>
     </Box>
   );
-};
+});
+
+ChatComponent.displayName = 'ChatComponent';
 
 ChatComponent.propTypes = {
   opponentId: PropTypes.string.isRequired,
@@ -361,4 +374,4 @@ ChatComponent.propTypes = {
   }),
 };
 
-export default React.memo(ChatComponent);
+export default ChatComponent;

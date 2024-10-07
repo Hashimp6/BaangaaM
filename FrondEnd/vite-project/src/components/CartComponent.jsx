@@ -46,8 +46,9 @@ const Cart = () => {
 
   // Get user info from Redux store
   const userInfo = useSelector((state) => state.user.userInfo);
-  console.log("userInfo fromcaryt",userInfo);
-  const userId = userInfo?._id || "66d7d20144b4f47cc5f8e8de"; // Fallback ID if needed
+  console.log("userInfo fromcaryt", userInfo);
+  const userId = userInfo?.user._id;
+  console.log("Address",userInfo.user.address);
 
   const fetchCart = async () => {
     if (userId) {
@@ -75,13 +76,13 @@ const Cart = () => {
     fetchCart();
 
     // Update address form when userInfo changes
-    if (userInfo?.address) {
+    if (userInfo?.user.address) {
       setAddressForm({
-        street: userInfo.address.street || "",
-        city: userInfo.address.city || "",
-        state: userInfo.address.state || "",
-        zipCode: userInfo.address.zipCode || "",
-        phone: userInfo.phone || "",
+        street: userInfo.user.address.street || "",
+        city: userInfo.user.address.city || "",
+        state: userInfo.user.address.state || "",
+        zipCode: userInfo.user.address.zipCode || "",
+        phone: userInfo.user.phone || "",
       });
     }
   }, [userId, dispatch, userInfo]);
@@ -117,49 +118,51 @@ const Cart = () => {
     }
   };
   const handlePaymentSuccess = async (response) => {
-    console.log('Payment successful', response);
-    setPaymentStatus('success');
+    console.log("Payment successful", response);
+    setPaymentStatus("success");
 
     try {
       // Prepare the order data
       const orderData = {
         user: userId,
-        orderItems: cart.map(item => ({
+        orderItems: cart.map((item) => ({
           name: item.name,
           qty: item.quantity,
           price: item.price,
-          product: item.productId
+          product: item.productId,
         })),
         shippingAddress: {
           address: userInfo.address.street,
-          city: userInfo.address.city,
+          city: userInfo.user.address.city,
           postalCode: userInfo.address.zipCode,
-          country: userInfo.address.state // Assuming state is used as country
+          country: userInfo.address.state, // Assuming state is used as country
         },
         paymentMethod: "Razorpay",
         totalPrice: total,
         isPaid: true,
-        paidAt: new Date()
+        paidAt: new Date(),
       };
 
       // Make an API call to create the order
       const createOrderResponse = await axios.post(
-        'http://localhost:3200/order/create-order', 
+        "http://localhost:3200/order/create-order",
         orderData,
         { withCredentials: true }
       );
 
       if (createOrderResponse.data.success) {
-        console.log('Order created successfully', createOrderResponse.data);
+        console.log("Order created successfully", createOrderResponse.data);
         // You might want to dispatch an action to update the order in your Redux store
         // or navigate to an order confirmation page
       } else {
-        console.error('Failed to create order');
-        setError('Failed to create order. Please contact support.');
+        console.error("Failed to create order");
+        setError("Failed to create order. Please contact support.");
       }
     } catch (error) {
-      console.error('Error creating order:', error);
-      setError('An error occurred while creating your order. Please try again.');
+      console.error("Error creating order:", error);
+      setError(
+        "An error occurred while creating your order. Please try again."
+      );
     }
 
     // Clear the cart
@@ -167,31 +170,28 @@ const Cart = () => {
     dispatch(setCart([]));
   };
 
-    const handlePaymentFailure = (error) => {
-        console.error('Payment failed', error);
-        setPaymentStatus('failure');
-      };
+  const handlePaymentFailure = (error) => {
+    console.error("Payment failed", error);
+    setPaymentStatus("failure");
+  };
 
-      const handleClosePaymentStatus = () => {
-        setPaymentStatus(null);
-        if (paymentStatus === 'success') {
-          // Clear the cart or redirect to a thank you page
-          setLocalCart([]);
-          dispatch(setCart([]));
-        }
-      };
-
-
-     
+  const handleClosePaymentStatus = () => {
+    setPaymentStatus(null);
+    if (paymentStatus === "success") {
+      // Clear the cart or redirect to a thank you page
+      setLocalCart([]);
+      dispatch(setCart([]));
+    }
+  };
 
   const handleOpenAddressDialog = () => {
     if (userInfo?.address) {
       setAddressForm({
-        street: userInfo.address.street || "",
-        city: userInfo.address.city || "",
-        state: userInfo.address.state || "",
-        zipCode: userInfo.address.zipCode || "",
-        phone: userInfo.phone || "",
+        street: userInfo.user.address.street || "",
+        city: userInfo.user.address.city || "",
+        state: userInfo.user.address.state || "",
+        zipCode: userInfo.user.address.zipCode || "",
+        phone: userInfo.user.phone || "",
       });
     }
     setOpenAddressDialog(true);
@@ -273,230 +273,232 @@ const Cart = () => {
         Shopping Cart
       </Typography>
       {paymentStatus ? (
-        <PaymentStatus status={paymentStatus} onClose={handleClosePaymentStatus} />
+        <PaymentStatus
+          status={paymentStatus}
+          onClose={handleClosePaymentStatus}
+        />
       ) : (
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={8}>
-          {cart.length === 0 ? (
-            <Paper elevation={3} sx={{ p: 3, textAlign: "center" }}>
-              <Typography variant="h6">Your cart is empty</Typography>
-              <Button
-                variant="contained"
-                color="primary"
-                sx={{ mt: 2 }}
-                onClick={() => Navigate("/products")}
-              >
-                Continue Shopping
-              </Button>
-            </Paper>
-          ) : (
-            <Paper elevation={3} sx={{ p: 2 }}>
-              {cart.map((item) => (
-                <Box key={item.productId}>
-                  <Grid container spacing={2} alignItems="center">
-                    <Grid item xs={3} sm={2}>
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        style={{
-                          width: "100%",
-                          height: "auto",
-                          borderRadius: "8px",
-                        }}
-                      />
-                    </Grid>
-                    <Grid item xs={9} sm={10}>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "flex-start",
-                        }}
-                      >
-                        <Typography variant="h6">{item.name}</Typography>
-                        <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                          ${item.totalPrice.toFixed(2)}
-                        </Typography>
-                      </Box>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                          mt: 2,
-                        }}
-                      >
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={8}>
+            {cart.length === 0 ? (
+              <Paper elevation={3} sx={{ p: 3, textAlign: "center" }}>
+                <Typography variant="h6">Your cart is empty</Typography>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  sx={{ mt: 2 }}
+                  onClick={() => Navigate("/products")}
+                >
+                  Continue Shopping
+                </Button>
+              </Paper>
+            ) : (
+              <Paper elevation={3} sx={{ p: 2 }}>
+                {cart.map((item) => (
+                  <Box key={item.productId}>
+                    <Grid container spacing={2} alignItems="center">
+                      <Grid item xs={3} sm={2}>
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          style={{
+                            width: "100%",
+                            height: "auto",
+                            borderRadius: "8px",
+                          }}
+                        />
+                      </Grid>
+                      <Grid item xs={9} sm={10}>
                         <Box
                           sx={{
                             display: "flex",
-                            alignItems: "center",
-                            border: "1px solid",
-                            borderColor: "primary.main",
-                            borderRadius: "4px",
-                            p: 0.5,
+                            justifyContent: "space-between",
+                            alignItems: "flex-start",
                           }}
                         >
-                          <IconButton
-                            size="small"
-                            onClick={() =>
-                              handleUpdateCartItem(
-                                item.productId,
-                                Math.max(1, item.quantity - 1)
-                              )
-                            }
-                          >
-                            <RemoveIcon />
-                          </IconButton>
-                          <Typography sx={{ mx: 2 }}>
-                            {item.quantity}
+                          <Typography variant="h6">{item.name}</Typography>
+                          <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                            ${item.totalPrice.toFixed(2)}
                           </Typography>
-                          <IconButton
-                            size="small"
-                            onClick={() =>
-                              handleUpdateCartItem(
-                                item.productId,
-                                item.quantity + 1
-                              )
-                            }
+                        </Box>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            mt: 2,
+                          }}
+                        >
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              border: "1px solid",
+                              borderColor: "primary.main",
+                              borderRadius: "4px",
+                              p: 0.5,
+                            }}
                           >
-                            <AddIcon />
+                            <IconButton
+                              size="small"
+                              onClick={() =>
+                                handleUpdateCartItem(
+                                  item.productId,
+                                  Math.max(1, item.quantity - 1)
+                                )
+                              }
+                            >
+                              <RemoveIcon />
+                            </IconButton>
+                            <Typography sx={{ mx: 2 }}>
+                              {item.quantity}
+                            </Typography>
+                            <IconButton
+                              size="small"
+                              onClick={() =>
+                                handleUpdateCartItem(
+                                  item.productId,
+                                  item.quantity + 1
+                                )
+                              }
+                            >
+                              <AddIcon />
+                            </IconButton>
+                          </Box>
+                          <IconButton
+                            color="error"
+                            onClick={() => handleRemoveFromCart(item.productId)}
+                          >
+                            <DeleteIcon />
                           </IconButton>
                         </Box>
-                        <IconButton
-                          color="error"
-                          onClick={() => handleRemoveFromCart(item.productId)}
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </Box>
+                      </Grid>
                     </Grid>
-                  </Grid>
-                  <Divider sx={{ my: 2 }} />
-                </Box>
-              ))}
-            </Paper>
-          )}
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <Paper elevation={3} sx={{ p: 2, mb: 2 }}>
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                mb: 1,
-              }}
-            >
-              <Typography variant="h6">Delivery Details</Typography>
-              <IconButton onClick={handleOpenAddressDialog}>
-                <EditIcon />
-              </IconButton>
-            </Box>
-            <Divider sx={{ mb: 2 }} />
-            {userInfo?.address ? (
-              <>
-                <Typography variant="body1">
-                  {userInfo.name || "No name provided"}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {userInfo.address.street}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {`${userInfo.address.city}, ${userInfo.address.state} ${userInfo.address.zipCode}`}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Phone: {userInfo.phone || "No phone provided"}
-                </Typography>
-              </>
-            ) : (
-              <Box sx={{ textAlign: "center", py: 2 }}>
-                <Typography variant="body1" color="text.secondary">
-                  No delivery address provided
-                </Typography>
-                <Button
-                  variant="outlined"
-                  onClick={handleOpenAddressDialog}
-                  sx={{ mt: 1 }}
-                >
-                  Add Address
-                </Button>
-              </Box>
+                    <Divider sx={{ my: 2 }} />
+                  </Box>
+                ))}
+              </Paper>
             )}
-          </Paper>
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <Paper elevation={3} sx={{ p: 2, mb: 2 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  mb: 1,
+                }}
+              >
+                <Typography variant="h6">Delivery Details</Typography>
+                <IconButton onClick={handleOpenAddressDialog}>
+                  <EditIcon />
+                </IconButton>
+              </Box>
+              <Divider sx={{ mb: 2 }} />
+              {userInfo?.address ? (
+                <>
+                  <Typography variant="body1">
+                    {userInfo.user.name || "No name provided"}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {userInfo.user.address.street}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {`${userInfo.user.address.city}, ${userInfo.address.state} ${userInfo.address.zipCode}`}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Phone: {userInfo.user.phone || "No phone provided"}
+                  </Typography>
+                </>
+              ) : (
+                <Box sx={{ textAlign: "center", py: 2 }}>
+                  <Typography variant="body1" color="text.secondary">
+                    No delivery address provided
+                  </Typography>
+                  <Button
+                    variant="outlined"
+                    onClick={handleOpenAddressDialog}
+                    sx={{ mt: 1 }}
+                  >
+                    Add Address
+                  </Button>
+                </Box>
+              )}
+            </Paper>
 
-          <Paper elevation={3} sx={{ p: 2 }}>
-            <Typography variant="h6" gutterBottom>
-              Order Summary
-            </Typography>
-            <Box sx={{ my: 2 }}>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  mb: 1,
-                }}
-              >
-                <Typography variant="body1">Subtotal</Typography>
-                <Typography variant="body1">
-                  ${calculateSubtotal().toFixed(2)}
-                </Typography>
+            <Paper elevation={3} sx={{ p: 2 }}>
+              <Typography variant="h6" gutterBottom>
+                Order Summary
+              </Typography>
+              <Box sx={{ my: 2 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    mb: 1,
+                  }}
+                >
+                  <Typography variant="body1">Subtotal</Typography>
+                  <Typography variant="body1">
+                    ${calculateSubtotal().toFixed(2)}
+                  </Typography>
+                </Box>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    mb: 1,
+                  }}
+                >
+                  <Typography variant="body1">Tax</Typography>
+                  <Typography variant="body1">${tax.toFixed(2)}</Typography>
+                </Box>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    mb: 1,
+                  }}
+                >
+                  <Typography variant="body1">Shipping</Typography>
+                  <Typography variant="body1">
+                    ${shippingFee.toFixed(2)}
+                  </Typography>
+                </Box>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    mb: 1,
+                  }}
+                >
+                  <Typography variant="body1">Discount</Typography>
+                  <Typography variant="body1" color="error">
+                    -${discount.toFixed(2)}
+                  </Typography>
+                </Box>
+                <Divider sx={{ my: 1 }} />
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    mb: 1,
+                  }}
+                >
+                  <Typography variant="h6">Total</Typography>
+                  <Typography variant="h6">${total.toFixed(2)}</Typography>
+                </Box>
               </Box>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  mb: 1,
-                }}
-              >
-                <Typography variant="body1">Tax</Typography>
-                <Typography variant="body1">${tax.toFixed(2)}</Typography>
-              </Box>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  mb: 1,
-                }}
-              >
-                <Typography variant="body1">Shipping</Typography>
-                <Typography variant="body1">
-                  ${shippingFee.toFixed(2)}
-                </Typography>
-              </Box>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  mb: 1,
-                }}
-              >
-                <Typography variant="body1">Discount</Typography>
-                <Typography variant="body1" color="error">
-                  -${discount.toFixed(2)}
-                </Typography>
-              </Box>
-              <Divider sx={{ my: 1 }} />
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  mb: 1,
-                }}
-              >
-                <Typography variant="h6">Total</Typography>
-                <Typography variant="h6">${total.toFixed(2)}</Typography>
-              </Box>
-            </Box>
-           
-                <RazorpayPayment 
-                  amount={total} 
-                  onSuccess={handlePaymentSuccess} 
-                  onFailure={handlePaymentFailure}
-                />
-             
-          </Paper>
+
+              <RazorpayPayment
+                amount={total}
+                onSuccess={handlePaymentSuccess}
+                onFailure={handlePaymentFailure}
+              />
+            </Paper>
+          </Grid>
         </Grid>
-      </Grid>
       )}
 
       <Dialog open={openAddressDialog} onClose={handleCloseAddressDialog}>

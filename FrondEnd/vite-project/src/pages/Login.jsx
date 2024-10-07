@@ -12,10 +12,7 @@ import bg from "../../public/pics/logbg.jpg";
 import axios from "axios";
 import GoogleLoginButton from "../components/GoogleButton";
 import { useDispatch } from "react-redux";
-import {
-  loginRequest,
-  loginSuccess,
-} from "../redux/slices/users/usersSlic";
+import { loginRequest, loginSuccess } from "../redux/slices/users/usersSlic";
 function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -70,10 +67,12 @@ function LoginForm() {
         setEmail("");
         setPassword("");
         if (response.data.success) {
-          dispatch(loginSuccess({
-            user: response.data.user,
-            role: response.data.role
-          }));
+          dispatch(
+            loginSuccess({
+              user: response.data.user,
+              role: response.data.role,
+            })
+          );
           console.log(response);
           navigate("/home");
           setLoginStatus(true);
@@ -104,8 +103,8 @@ function LoginForm() {
         elevation={24}
         sx={{
           height: "auto",
-          width: "35%",
-          padding: 3,
+          width: { xs: "90%", sm: "70%", md: "50%", lg: "35%" },
+          padding: { xs: 2, sm: 3, md: 3 },
         }}
       >
         <Box

@@ -30,3 +30,5 @@ BackEnd/dist/
 *.njsproj
 *.sln
 *.sw?
+BackEnd/.env
+FrondEnd/vite-project/.env

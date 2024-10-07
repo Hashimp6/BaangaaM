@@ -5,8 +5,8 @@ import logo from "../../public/pics/logbg.jpg";
 function Catagory({ category }) {
   console.log(category);
   return (
-    <Box display="flex" flexDirection="column" alignItems="center">
-      
+    <Box display="flex" flexDirection="column" alignItems="center" sx={{
+      padding: "10px",}}>
       <Box
         component="img"
         src={category.categoryImage || logo} // Use category image if available, else use default logo

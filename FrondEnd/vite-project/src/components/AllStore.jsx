@@ -9,13 +9,122 @@ import {
   Paper,
   Typography,
   IconButton,
+  useTheme,
+  useMediaQuery,
+  Box,
+  Collapse,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import axios from "axios";
+
+function Row(props) {
+  const { store, index, handleDelete } = props;
+  const [open, setOpen] = useState(false);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  return (
+    <>
+      <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
+        <TableCell>
+          <IconButton
+            aria-label="expand row"
+            size="small"
+            onClick={() => setOpen(!open)}
+          >
+            {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+          </IconButton>
+        </TableCell>
+        <TableCell component="th" scope="row">
+          {store.shopName}
+        </TableCell>
+        {!isMobile && (
+          <>
+            <TableCell>{store.email}</TableCell>
+            <TableCell>{store.contact?.phone || "N/A"}</TableCell>
+            <TableCell>{store.location}</TableCell>
+          </>
+        )}
+        <TableCell>
+          <IconButton
+            onClick={() => handleDelete(store._id)}
+            color="error"
+            size={isMobile ? "small" : "medium"}
+          >
+            <DeleteIcon />
+          </IconButton>
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+          <Collapse in={open} timeout="auto" unmountOnExit>
+            <Box sx={{ margin: 1 }}>
+              <Typography variant="h6" gutterBottom component="div">
+                Store Details
+              </Typography>
+              <Table size="small" aria-label="purchases">
+                <TableBody>
+                  {isMobile && (
+                    <>
+                      <TableRow>
+                        <TableCell component="th" scope="row">Email</TableCell>
+                        <TableCell>{store.email}</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell component="th" scope="row">Phone</TableCell>
+                        <TableCell>{store.contact?.phone || "N/A"}</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell component="th" scope="row">Location</TableCell>
+                        <TableCell>{store.location}</TableCell>
+                      </TableRow>
+                    </>
+                  )}
+                  <TableRow>
+                    <TableCell component="th" scope="row">Address</TableCell>
+                    <TableCell>{store.address}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell component="th" scope="row">Category</TableCell>
+                    <TableCell>{store.category}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell component="th" scope="row">Logo</TableCell>
+                    <TableCell>
+                      <img
+                        src={store.logo}
+                        alt="Logo"
+                        style={{ width: 50, height: 50 }}
+                      />
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell component="th" scope="row">Banner</TableCell>
+                    <TableCell>
+                      <img
+                        src={store.banner}
+                        alt="Banner"
+                        style={{ width: 150, height: 50 }}
+                      />
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </Box>
+          </Collapse>
+        </TableCell>
+      </TableRow>
+    </>
+  );
+}
 
 function StoreTable() {
   const [stores, setStores] = useState([]);
   const [error, setError] = useState(null);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   useEffect(() => {
     fetchStores();
@@ -24,8 +133,9 @@ function StoreTable() {
   const fetchStores = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:3200/store/all_stores", {
-          withCredentials: true 
+        "http://localhost:3200/store/all_stores",
+        {
+          withCredentials: true
         }
       );
       if (response.data.success) {
@@ -42,10 +152,10 @@ function StoreTable() {
   const handleDelete = async (id) => {
     try {
       const response = await axios.delete(`http://localhost:3200/store/${id}`, {
-        withCredentials: true 
+        withCredentials: true
       });
       if (response.data.success) {
-        fetchStores(); // Refresh the list after deletion
+        fetchStores();
       } else {
         setError(response.data.message);
       }
@@ -60,57 +170,24 @@ function StoreTable() {
 
   return (
     <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 650 }} aria-label="store table">
+      <Table aria-label="collapsible table">
         <TableHead>
           <TableRow>
-            <TableCell>Sl No</TableCell>
+            <TableCell />
             <TableCell>Store Name</TableCell>
-            <TableCell>Email ID</TableCell>
-            <TableCell>Phone</TableCell>
-            <TableCell>Location</TableCell>
-            <TableCell>Address</TableCell>
-            <TableCell>Category</TableCell>
-            <TableCell>Logo</TableCell>
-            <TableCell>Banner</TableCell>
+            {!isMobile && (
+              <>
+                <TableCell>Email ID</TableCell>
+                <TableCell>Phone</TableCell>
+                <TableCell>Location</TableCell>
+              </>
+            )}
             <TableCell>Actions</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {stores.map((store, index) => (
-            <TableRow
-              key={store._id}
-              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-            >
-              <TableCell>{index + 1}</TableCell>
-              <TableCell>{store.shopName}</TableCell>
-              <TableCell>{store.email}</TableCell>
-              <TableCell>{store.contact?.phone || "N/A"}</TableCell>
-              <TableCell>{store.location}</TableCell>
-              <TableCell>{store.address}</TableCell>
-              <TableCell>{store.category}</TableCell>
-              <TableCell>
-                <img
-                  src={store.logo}
-                  alt="Logo"
-                  style={{ width: 50, height: 50 }}
-                />
-              </TableCell>
-              <TableCell>
-                <img
-                  src={store.banner}
-                  alt="Banner"
-                  style={{ width: 150, height: 50 }}
-                />
-              </TableCell>
-              <TableCell>
-                <IconButton
-                  onClick={() => handleDelete(store._id)}
-                  color="error"
-                >
-                  <DeleteIcon />
-                </IconButton>
-              </TableCell>
-            </TableRow>
+            <Row key={store._id} store={store} index={index} handleDelete={handleDelete} />
           ))}
         </TableBody>
       </Table>

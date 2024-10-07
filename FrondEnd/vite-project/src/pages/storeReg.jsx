@@ -68,13 +68,17 @@ function StoreRegisterForm() {
 
     if (isValid) {
       try {
-        const response = await axios.post("http://localhost:3200/store/register", {
-          name: name.trim(),
-          email: email.trim(),
-          password: password.trim(),
-        }, {
-          withCredentials: true 
-        });
+        const response = await axios.post(
+          "http://localhost:3200/store/register",
+          {
+            name: name.trim(),
+            email: email.trim(),
+            password: password.trim(),
+          },
+          {
+            withCredentials: true,
+          }
+        );
         setName("");
         setEmail("");
         setPassword("");
@@ -88,7 +92,7 @@ function StoreRegisterForm() {
         } else {
           console.log("sorry");
           setRegisterMessage(true);
-          setVarified(false)
+          setVarified(false);
         }
       } catch (error) {
         console.log("Error fetching:", error);
@@ -139,8 +143,8 @@ function StoreRegisterForm() {
         elevation={24}
         sx={{
           height: "auto",
-          width: "35%",
-          padding: 3,
+          width: { xs: "90%", sm: "70%", md: "50%", lg: "35%" },
+          padding: { xs: 1, sm: 3, md: 3 },
         }}
       >
         {otpWindow ? (
@@ -161,15 +165,23 @@ function StoreRegisterForm() {
               padding: 3,
             }}
           >
-             <StoreIcon
-            sx={{ fontSize: 60, color: "#009688", marginBottom: "10px" }} // Store icon in teal
-          />
+            <StoreIcon
+              sx={{ fontSize: 60, color: "#009688", marginBottom: "10px" }} // Store icon in teal
+            />
             <Typography
-              variant="h4"
+              variant="h4" // Default variant
               gutterBottom
-              sx={{ color: "#009688", fontWeight: "bold", marginBottom: "2vh" }}
+              sx={{
+                color: "#009688",
+                fontWeight: "bold",
+                marginBottom: "2vh",
+                typography: {
+                  xs: "h6", 
+                  md: "h4", 
+                },
+              }}
             >
-              Register Your Store 
+              Register Your Store
             </Typography>
 
             {registerMessage && (

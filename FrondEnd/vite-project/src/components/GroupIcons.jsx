@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Box, IconButton, Typography } from "@mui/material";
-import { Message, Favorite, Star } from "@mui/icons-material";
 import RightDrawer from "./MessageDrawer";
+import { Message, Favorite, FavoriteBorder, Star } from "@mui/icons-material";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import axios from "axios";
 
@@ -27,8 +27,9 @@ const IconsBox = ({ storeId, storeName, favorites }) => {
           "http://localhost:3200/store/remove-from-favorite",
           {
             storeId: storeId,
-          }, {
-            withCredentials: true 
+          },
+          {
+            withCredentials: true,
           }
         );
       } else {
@@ -36,8 +37,9 @@ const IconsBox = ({ storeId, storeName, favorites }) => {
           "http://localhost:3200/store/add-to-favorite",
           {
             storeId: storeId,
-          }, {
-            withCredentials: true 
+          },
+          {
+            withCredentials: true,
           }
         );
       }
@@ -53,8 +55,8 @@ const IconsBox = ({ storeId, storeName, favorites }) => {
   return (
     <Box
       sx={{
-        width: "10vw",
-        height: "15vh",
+        width: { xs: "20vw", sm: "10vw" }, // Increase width on mobile for better tap targets
+        height: { xs: "8vh", sm: "10vh" }, // Decrease height on mobile
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
@@ -62,44 +64,63 @@ const IconsBox = ({ storeId, storeName, favorites }) => {
         position: "relative",
       }}
     >
+      {/* Message icon */}
       <IconButton
-        sx={{ position: "absolute", top: "8px", right: "8px" }}
+        sx={{
+          position: "absolute",
+          top: { xs: "4px", sm: "8px" }, // Adjust top position for mobile
+          right: { xs: "0px", sm: "8px" }, // Adjust right position for mobile
+        }}
         onClick={(event) => handleDrawerOpen(event)}
       >
-        <Message />
+        <Message sx={{ fontSize: { xs: "15px", sm: "25px" } }} />
       </IconButton>
+
+      {/* Favorite icon */}
       <IconButton
-        sx={{ position: "absolute", top: "8px", right: "50px" }}
+        sx={{
+          position: "absolute",
+          top: { xs: "4px", sm: "8px" }, // Adjust top position for mobile
+          right: { xs: "25px", sm: "50px" }, // Adjust right position for mobile
+        }}
         onClick={handleFavoriteToggle}
       >
         {isFavorite ? (
-          <Favorite style={{ color: "red" }} />
+          <Favorite
+            sx={{ color: "red", fontSize: { xs: "15px", sm: "25px" } }}
+          />
         ) : (
-          <FavoriteBorderIcon style={{ color: "black" }} />
+          <FavoriteBorder
+            sx={{ color: "black", fontSize: { xs: "15px", sm: "25px" } }}
+          />
         )}
       </IconButton>
+
+      {/* Rating section */}
       <Box
         sx={{
           display: "flex",
           alignItems: "center",
           position: "absolute",
-          top: "2.8vh",
-          right: "6.3vw",
+          top: { xs: "1.2vh", sm: "2.8vh" }, // Adjust top position for mobile
+          right: { xs: "13vw", sm: "6.3vw" }, // Adjust right position for mobile
         }}
       >
-        <Star sx={{ color: "gold", fontSize: "20px" }} />
+        <Star sx={{ color: "gold", fontSize: { xs: "15px", sm: "25px" } }} />
         <Typography
           variant="body2"
           sx={{
             color: "black",
             paddingLeft: "2px",
-            fontSize: "14px",
+            fontSize: { xs: "12px", sm: "14px" }, // Adjust font size for mobile
             fontWeight: "700",
           }}
         >
           4
         </Typography>
       </Box>
+
+      {/* Drawer for chat */}
       <RightDrawer
         open={isDrawerOpen}
         onClose={handleDrawerClose}

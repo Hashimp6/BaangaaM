@@ -13,7 +13,10 @@ import StoreIcon from "@mui/icons-material/Store";
 import axios from "axios";
 import { keyframes } from "@emotion/react";
 import { useDispatch } from "react-redux";
-import {  storeLoginRequest, storeLoginSuccess } from "../redux/slices/store/storesSlice";
+import {
+  storeLoginRequest,
+  storeLoginSuccess,
+} from "../redux/slices/store/storesSlice";
 
 // Color Scheme: Updated
 const primaryColor = "#009688";
@@ -70,21 +73,27 @@ function StoreLoginForm() {
 
     if (isValid) {
       try {
-        const response = await axios.post("http://localhost:3200/store/Login", {
-          email: email.trim(),
-          password: password.trim(),
-        }, {
-          withCredentials: true 
-        });
+        const response = await axios.post(
+          "http://localhost:3200/store/Login",
+          {
+            email: email.trim(),
+            password: password.trim(),
+          },
+          {
+            withCredentials: true,
+          }
+        );
 
         setEmail("");
         setPassword("");
         if (response.data.success) {
-          dispatch(storeLoginSuccess({
-            shop: response.data.shop,
-            role: response.data.role
-          }));
-          console.log("store owner is",response.data.user);
+          dispatch(
+            storeLoginSuccess({
+              shop: response.data.shop,
+              role: response.data.role,
+            })
+          );
+          console.log("store owner is", response.data.user);
           navigate("/shopowners");
           setLoginStatus(true);
         } else {
@@ -115,8 +124,8 @@ function StoreLoginForm() {
         elevation={24}
         sx={{
           height: "auto",
-          width: "35%",
-          padding: 3,
+          width: { xs: "90%", sm: "70%", md: "50%", lg: "35%" },
+          padding: { xs: 2, sm: 3, md: 3 },
         }}
       >
         <Box
