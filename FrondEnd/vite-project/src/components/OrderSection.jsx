@@ -34,7 +34,7 @@ const OrdersSection = () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        `http://localhost:3200/orders/${shopInfo.email}`,
+       `${import.meta.env.VITE_Backend_api}/orders/${shopInfo.email}`,
         { withCredentials: true }
       );
       if (response.data) {

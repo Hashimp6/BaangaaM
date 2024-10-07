@@ -25,7 +25,7 @@ const server = http.createServer(app);
 setupSocket(server);
 
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: process.env.frond_end,
   credentials: true
 }));
 app.use(passport.initialize());

@@ -11,7 +11,7 @@ import io from "socket.io-client";
 import { Avatar, ListItemAvatar } from "@mui/material";
 
 // Move socket initialization outside component to prevent reconnection on re-renders
-const socket = io("http://localhost:3200");
+const socket = io(`${import.meta.env.VITE_Backend_api}`);
 
 const ChatComponent = React.memo(({
   opponentId,

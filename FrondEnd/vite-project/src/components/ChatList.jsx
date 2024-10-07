@@ -36,7 +36,7 @@ const ConversationList = ({
       setLoading(true);
       try {
         const response = await axios.post(
-          "http://localhost:3200/chat/all_chats",
+          `${import.meta.env.VITE_Backend_api}/chat/all_chats`,
           { userId: userId }, {
             withCredentials: true 
           }

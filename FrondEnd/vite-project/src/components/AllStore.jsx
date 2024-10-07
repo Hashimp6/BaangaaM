@@ -133,7 +133,7 @@ function StoreTable() {
   const fetchStores = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:3200/store/all_stores",
+       `${import.meta.env.VITE_Backend_api}/store/all_stores`,
         {
           withCredentials: true
         }
@@ -151,7 +151,7 @@ function StoreTable() {
 
   const handleDelete = async (id) => {
     try {
-      const response = await axios.delete(`http://localhost:3200/store/${id}`, {
+      const response = await axios.delete(`${import.meta.env.VITE_Backend_api}/store/${id}`, {
         withCredentials: true
       });
       if (response.data.success) {

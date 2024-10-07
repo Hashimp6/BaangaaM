@@ -37,7 +37,7 @@ function MiddleProducts() {
     if (selectedShop?.email) {
       const email = selectedShop.email;
       axios
-        .get(`http://localhost:3200/product/allProducts/${email}`, {
+        .get(`${import.meta.env.VITE_Backend_api}/product/allProducts/${email}`, {
           withCredentials: true,
         })
         .then((response) => {
@@ -52,7 +52,7 @@ function MiddleProducts() {
     try {
       console.log("user is is s", userId, product);
       const response = await axios.post(
-        "http://localhost:3200/product/addtocart",
+   `${import.meta.env.VITE_Backend_api}/product/addtocart`,
         {
           userId: userId,
           productId: product._id,
@@ -90,7 +90,7 @@ function MiddleProducts() {
       const product = products.find((p) => p._id === productId);
       if (product.isFavorite) {
         await axios.post(
-          "http://localhost:3200/product/remove-from-favorite",
+          `${import.meta.env.VITE_Backend_api}/product/remove-from-favorite`,
           {
             productId: productId,
           },
@@ -100,7 +100,7 @@ function MiddleProducts() {
         );
       } else {
         await axios.post(
-          "http://localhost:3200/product/add-to-favorite",
+          `${import.meta.env.VITE_Backend_api}/product/add-to-favorite`,
           {
             productId: productId,
           },

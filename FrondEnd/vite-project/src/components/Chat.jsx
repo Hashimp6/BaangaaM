@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import io from "socket.io-client";
 import { Send } from "lucide-react";
 
-const socket = io("http://localhost:3200");
+const socket = io(`${import.meta.env.VITE_Backend_api}`);
 
 const Chat = ({ conversationId, userId }) => {
   const [messages, setMessages] = useState([]);

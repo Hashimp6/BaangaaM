@@ -67,7 +67,7 @@ function RegisterForm() {
 
     if (isValid) {
       try {
-        const response = await axios.post("http://localhost:3200/user/register", {
+        const response = await axios.post(`${import.meta.env.VITE_Backend_api}/user/register`, {
           name: name.trim(),
           email: email.trim(),
           password: password.trim(),
@@ -105,7 +105,7 @@ function RegisterForm() {
         isValid = false;
       }
       if (isValid) {
-        const response = await axios.post("http://localhost:3200/auth/varify", {
+        const response = await axios.post(`${import.meta.env.VITE_Backend_api}/auth/varify`, {
           email: email.trim(),
         });
         if (response.data.success) {

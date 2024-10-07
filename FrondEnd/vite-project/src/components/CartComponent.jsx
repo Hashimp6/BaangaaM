@@ -54,7 +54,7 @@ const Cart = () => {
     if (userId) {
       try {
         const response = await axios.get(
-          `http://localhost:3200/product/allcart/${userId}`,
+          `${import.meta.env.VITE_Backend_api}/product/allcart/${userId}`,
           {
             withCredentials: true,
           }
@@ -90,7 +90,7 @@ const Cart = () => {
   const handleRemoveFromCart = async (productId) => {
     try {
       await axios.delete(
-        `http://localhost:3200/product/removefromcart/${userId}/${productId}`,
+        `${import.meta.env.VITE_Backend_api}/product/removefromcart/${userId}/${productId}`,
         {
           withCredentials: true,
         }
@@ -105,7 +105,7 @@ const Cart = () => {
   const handleUpdateCartItem = async (productId, quantity) => {
     try {
       await axios.put(
-        `http://localhost:3200/product/updatecart/${userId}/${productId}`,
+       `${import.meta.env.VITE_Backend_api}/product/updatecart/${userId}/${productId}`,
         { quantity },
         {
           withCredentials: true,
@@ -145,7 +145,7 @@ const Cart = () => {
 
       // Make an API call to create the order
       const createOrderResponse = await axios.post(
-        "http://localhost:3200/order/create-order",
+      `${import.meta.env.VITE_Backend_api}/order/create-order`,
         orderData,
         { withCredentials: true }
       );
@@ -213,7 +213,7 @@ const Cart = () => {
   const handleAddressSubmit = async () => {
     try {
       const response = await axios.put(
-        `http://localhost:3200/user/update-address/${userId}`,
+        `${import.meta.env.VITE_Backend_api}/user/update-address/${userId}`,
         addressForm,
         {
           withCredentials: true,

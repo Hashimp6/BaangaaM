@@ -59,7 +59,7 @@ function AdminRegister() {
 
     if (isValid) {
       try {
-        const response = await axios.post("http://localhost:3200/admin/register", {
+        const response = await axios.post(`${import.meta.env.VITE_Backend_api}/admin/register`, {
           email: email.trim(),
           password: password.trim(),
         }, {
@@ -97,7 +97,7 @@ function AdminRegister() {
         isValid = false;
       }
       if (isValid) {
-        const response = await axios.post("http://localhost:3200/auth/varify", {
+        const response = await axios.post(`${import.meta.env.VITE_Backend_api}/auth/varify`, {
           email: email.trim(),
         }, {
           withCredentials: true 

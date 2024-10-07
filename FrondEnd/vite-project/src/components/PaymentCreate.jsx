@@ -7,7 +7,7 @@ const RazorpayPayment = ({ amount, onSuccess, onFailure }) => {
   const handlePayment = async () => {
     try {
       // Create Razorpay order
-      const orderResponse = await axios.post('http://localhost:3200/payment/create-order', { amount });
+      const orderResponse = await axios.post(`${import.meta.env.VITE_Backend_api}/payment/create-order`, { amount });
       const { id: orderId } = orderResponse.data;
       console.log("order cre",orderResponse.data);
 

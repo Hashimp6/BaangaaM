@@ -22,7 +22,7 @@ const OtpVerification = ({ email, setVarified, setOtpWindow }) => {
 
   const handleOTPVerify = async() => {
     const otpValue = otp.join("");
-    const response = await axios.post("http://localhost:3200/auth/otpvarify", {
+    const response = await axios.post(`${import.meta.env.VITE_Backend_api}/auth/otpvarify`, {
         otp:otpValue,email:email
       }, {
         withCredentials: true 
@@ -43,7 +43,7 @@ const OtpVerification = ({ email, setVarified, setOtpWindow }) => {
   
 
   const handleResendOtp=async()=>{
-    const response = await axios.post("http://localhost:3200/auth/resendOtp", {
+    const response = await axios.post(`${import.meta.env.VITE_Backend_api}/auth/resendOtp`, {
        email:email
       }, {
         withCredentials: true 

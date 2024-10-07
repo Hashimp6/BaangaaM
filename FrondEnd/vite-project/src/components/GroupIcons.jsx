@@ -24,7 +24,7 @@ const IconsBox = ({ storeId, storeName, favorites }) => {
       let response;
       if (isFavorite) {
         response = await axios.post(
-          "http://localhost:3200/store/remove-from-favorite",
+         `${import.meta.env.VITE_Backend_api}/store/remove-from-favorite`,
           {
             storeId: storeId,
           },
@@ -34,7 +34,7 @@ const IconsBox = ({ storeId, storeName, favorites }) => {
         );
       } else {
         response = await axios.post(
-          "http://localhost:3200/store/add-to-favorite",
+          `${import.meta.env.VITE_Backend_api}/store/add-to-favorite`,
           {
             storeId: storeId,
           },

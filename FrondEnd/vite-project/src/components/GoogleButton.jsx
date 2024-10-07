@@ -4,7 +4,7 @@ import GoogleIcon from "@mui/icons-material/Google";
 
 const GoogleLoginButton = () => {
   const handleGoogleLogin = () => {
-    window.location.href = "http://localhost:3200/auth/google";
+    window.location.href = `${import.meta.env.VITE_Backend_api}/auth/google`;
   };
 
   return (

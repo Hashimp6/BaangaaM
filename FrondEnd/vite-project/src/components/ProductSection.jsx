@@ -33,7 +33,7 @@ const ProductSection = ({ products, fetchProducts, setSnackbar }) => {
   const handleDeleteProduct = async (id) => {
     try {
       const response = await axios.delete(
-        `http://localhost:3200/product/delete/${id}`
+        `${import.meta.env.VITE_Backend_api}/product/delete/${id}`
       );
       if (response.data.success) {
         await fetchProducts();

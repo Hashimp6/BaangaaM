@@ -23,7 +23,7 @@ function AdminCategory() {
 
   const fetchCategories = async (type) => {
     try {
-      const response = await axios.post("http://localhost:3200/catagory/all_catagory", { type }, {
+      const response = await axios.post(`${import.meta.env.VITE_Backend_api}/catagory/all_catagory`, { type }, {
         withCredentials: true 
       }
       );
@@ -49,7 +49,7 @@ function AdminCategory() {
   const addCategory = async (newCategory, type) => {
     try {
       const response = await axios.post(
-       " http://localhost:3200/catagory/add_catagory",
+       `${import.meta.env.VITE_Backend_api}/catagory/add_catagory`,
         newCategory, {
           withCredentials: true 
         }
@@ -68,7 +68,7 @@ function AdminCategory() {
   const deleteCategory = async (id, type) => {
     try {
       const response = await axios.post(
-        "http://localhost:3200/catagory/delete_catagory",
+       `${import.meta.env.VITE_Backend_api}/catagory/delete_catagory`,
         { id }, {
           withCredentials: true 
         }

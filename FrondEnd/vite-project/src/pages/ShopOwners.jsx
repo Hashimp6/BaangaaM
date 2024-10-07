@@ -68,7 +68,7 @@ const ShopOwner = () => {
     try {
       dispatch(fetchProductsRequest());
       const response = await axios.get(
-        `http://localhost:3200/product/allProducts/${shopInfo.email}`,
+        `${import.meta.env.VITE_Backend_api}/product/allProducts/${shopInfo.email}`,
         { withCredentials: true }
       );
       if (response.data) {

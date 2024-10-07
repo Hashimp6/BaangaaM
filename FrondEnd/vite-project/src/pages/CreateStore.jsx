@@ -26,7 +26,7 @@ import { useSelector } from "react-redux";
 const StoreForm = () => {
   const navigate = useNavigate();
   const shopInfo = useSelector((state) => state.store.shopInfo);
-  console.log("shop info is", shopInfo);
+  console.log("shop info is",shopInfo);
 
   const [features, setFeatures] = useState({
     cashOnDelivery: false,
@@ -117,16 +117,14 @@ const StoreForm = () => {
         console.log(`${key}:`, value);
       }
       axios
-        .post("http://localhost:3200/store/store_datas", formData, {
+        .post(`${import.meta.env.VITE_Backend_api}/store/store_datas`, formData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
-        }, {
-          withCredentials: true 
         })
         .then((response) => {
           console.log(response);
-          navigate("/shopowners");
+          navigate('/shopowners'); 
         })
         .catch((error) => {
           console.log(error);

@@ -19,7 +19,7 @@ const ChatProfiles = () => {
   //   useEffect(() => {
   //     const fetchConversations = async () => {
   //       try {
-  //         const response = await axios.get('http://localhost:3200/chat/all_chats', { userId }, {
+  //         const response = await axios.get(`${import.meta.env.VITE_Backend_api}/chat/all_chats`, { userId }, {
      
   //         if (response.data && response.data.length > 0) {
   //           setConversations(response.data); // Set the conversations data

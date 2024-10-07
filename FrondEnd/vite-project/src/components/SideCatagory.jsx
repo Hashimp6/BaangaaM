@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 function Sidebar({ type }) {
-  const isMobile = useMediaQuery("(max-width:600px)");
   const [categories, setCategories] = useState([]);
   const [error, setError] = useState(null);
 
@@ -13,7 +12,7 @@ function Sidebar({ type }) {
     const fetchCategories = async () => {
       try {
         const response = await axios.post(
-          "http://localhost:3200/catagory/all_catagory",
+          `${import.meta.env.VITE_Backend_api}/catagory/all_catagory`,
           { type },
           {
             withCredentials: true,

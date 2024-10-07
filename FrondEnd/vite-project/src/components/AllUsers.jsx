@@ -28,7 +28,8 @@ function UserTable() {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get("http://localhost:3200/user/allUsers", {
+      console.log("env iss",import.meta.env.VITE_Backend_api);
+      const response = await axios.get(`${import.meta.env.VITE_Backend_api}/user/allUsers`, {
         withCredentials: true,
       });
       if (response.data.success) {
@@ -45,7 +46,7 @@ function UserTable() {
   const handleDelete = async (id) => {
     try {
       const response = await axios.delete(
-        `http://localhost:3200/user/deleteUser/${id}`,
+        `${import.meta.env.VITE_Backend_api}/user/deleteUser/${id}`,
         {
           withCredentials: true,
         }
