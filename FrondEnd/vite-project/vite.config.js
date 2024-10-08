@@ -25,6 +25,7 @@ export default defineConfig({
       '@emotion/react',
       '@emotion/styled',
       '@mui/material/Tooltip',
+      'react-easy-crop'
     ],
   },
   build: {
