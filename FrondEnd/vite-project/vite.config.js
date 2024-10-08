@@ -25,12 +25,13 @@ export default defineConfig({
       '@emotion/react',
       '@emotion/styled',
       '@mui/material/Tooltip',
-      'react-easy-crop'
     ],
   },
   build: {
     rollupOptions: {
-      external: ['@rollup/rollup-linux-x64-gnu']
+      external: ['@rollup/rollup-linux-x64-gnu',
+        'react-easy-crop'
+      ]
     }
   },
   esbuild: {
