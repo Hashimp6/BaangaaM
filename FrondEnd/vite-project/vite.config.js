@@ -17,7 +17,7 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/maps/, '')
       },
-      '/api': 'http://localhost:3200', // Proxy API requests to your backend
+      '/api': 'http://localhost:3200',
     },
   },
   optimizeDeps: {
@@ -25,12 +25,13 @@ export default defineConfig({
       '@emotion/react',
       '@emotion/styled',
       '@mui/material/Tooltip',
+      'react-easy-crop'  
     ],
   },
   build: {
     rollupOptions: {
-      external: ['@rollup/rollup-linux-x64-gnu',
-        'react-easy-crop'
+      external: [
+        '@rollup/rollup-linux-x64-gnu'
       ]
     }
   },
