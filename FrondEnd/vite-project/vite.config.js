@@ -27,4 +27,12 @@ export default defineConfig({
       '@mui/material/Tooltip',
     ],
   },
+  build: {
+    rollupOptions: {
+      external: ['@rollup/rollup-linux-x64-gnu']
+    }
+  },
+  esbuild: {
+    target: 'esnext'
+  }
 });
