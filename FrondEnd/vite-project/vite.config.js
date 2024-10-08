@@ -25,13 +25,16 @@ export default defineConfig({
       '@emotion/react',
       '@emotion/styled',
       '@mui/material/Tooltip',
-      'react-easy-crop'  
+      'react-easy-crop'  ,
+       '@react-google-maps/api'
     ],
   },
   build: {
     rollupOptions: {
       external: [
-        '@rollup/rollup-linux-x64-gnu'
+        '@rollup/rollup-linux-x64-gnu', 
+         'react-easy-crop',
+        '@react-google-maps/api'
       ]
     }
   },
