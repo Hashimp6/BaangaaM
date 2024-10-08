@@ -5,7 +5,7 @@ import ProtectedRoute from "./components/IsAutherised";
 
 // Public pages
 import RegisterPage from "../src/pages/Register";
-import LoginForm from "./pages/login";
+import LoginForm from "./pages/Login";
 import StoreLoginForm from "./pages/storeLogin";
 import StoreRegisterForm from "./pages/storeReg";
 import AdminRegister from "./pages/AdminReg";
